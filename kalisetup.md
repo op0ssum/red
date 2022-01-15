@@ -75,13 +75,6 @@ neo4j / neo4j
 sudo neo4j console
 sudo /opt/BloodHound/bin/BloodHound --no-sandbox
 ```
-### misc
-```
-copy over ~/data
-copy over ~/osep
-copy over ~/htb
-copy over ~/Downloads
-```
 ### python crypto
 ```
 sudo apt-get install python-dev
