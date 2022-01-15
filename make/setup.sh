@@ -1,3 +1,5 @@
+sudo systemctl start nmbd && sudo systemctl start smbd
+echo "[+] nmbd and smbd started"
 sudo service apache2 start
 echo "[+] apache2 started"
 sudo chown -R kali:kali /var/www/html
