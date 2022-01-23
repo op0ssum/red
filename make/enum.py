@@ -67,6 +67,9 @@ if __name__ == "__main__":
         target = target.split(',')
 
     if target[-4:] == ".txt":
+        if not os.path.exists(target):
+            print('[+] file %s not found - check filename. exiting!' % (target))
+            sys.exit()
         res = []
         with open(target,'r') as f:
             line = f.readline()
@@ -74,7 +77,7 @@ if __name__ == "__main__":
                 res.append(line.rstrip())
                 line = f.readline()
         f.close()
-        target=res
+        target = res
         #print(res)
 
     ip_list = target
