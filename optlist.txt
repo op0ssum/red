@@ -37,6 +37,5 @@ git clone https://github.com/DominicBreuker/pspy
 git clone https://github.com/gentilkiwi/mimikatz
 git clone https://github.com/int0x33/nc.exe
 git clone https://github.com/trustedsec/social-engineer-toolkit
-git clone https://github.com/eloypgz/ticket_converter
 git clone https://github.com/Zer1t0/ticket_converter
 git clone https://github.com/trinitronx/vncpasswd.py
