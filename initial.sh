@@ -79,3 +79,6 @@ git clone https://github.com/trustedsec/social-engineer-toolkit
 git clone https://github.com/eloypgz/ticket_converter
 git clone https://github.com/Zer1t0/ticket_converter
 git clone https://github.com/trinitronx/vncpasswd.py
+cp /var/www/html/chisel /opt/chisel/
+chmod +x /opt/chisel
+echo "[+] copied /var/www/html/chisel to /opt/chisel/chisel"
