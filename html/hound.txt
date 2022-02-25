@@ -555,6 +555,6 @@ function Invoke-BloodHound{
 	$Assembly.GetType("SharpHound3.SharpHound").GetMethod("InvokeSharpHound").Invoke($Null, @(,$passed))
 }
 
-Invoke-BloodHound -Domain cowmotors-int.com -CollectionMethod All -OutputDirectory "c:\windows\tasks\"
-Invoke-BloodHound -Domain cowmotors-lab.com -CollectionMethod All -OutputDirectory "c:\windows\tasks\"
-Invoke-BloodHound -Domain cowmotors.com -CollectionMethod All -OutputDirectory "c:\windows\tasks\"
+Invoke-BloodHound -Domain catmotors-int.com -CollectionMethod All -OutputDirectory "c:\windows\tasks\"
+Invoke-BloodHound -Domain catmotors-lab.com -CollectionMethod All -OutputDirectory "c:\windows\tasks\"
+Invoke-BloodHound -Domain catmotors.com -CollectionMethod All -OutputDirectory "c:\windows\tasks\"
