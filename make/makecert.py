@@ -9,6 +9,10 @@ def certutil_b64encode(src,dest):
     head = "-----BEGIN CERTIFICATE-----\n"
     tail = "-----END CERTIFICATE-----"
 
+    if "/" in src:
+        chunks = src.split("/")
+        lsrc = chunks[-1]
+
     e = open(src,'rb')
     exebytes = e.read()
     e.close()
@@ -22,7 +26,9 @@ def certutil_b64encode(src,dest):
             f.write(chunk + "\n")
         f.write(tail)
     f.close()
-    print('[+] certutil encoded file written: %s' % certfilename)
+    print('[+] certutil encoded file written: %s\n' % certfilename)
+    print("[+] tips to decode certutil encoded file:\n")
+    print("certutil -decode .\\%s .\\%s" % (dest,lsrc))
     return certfilename
     pass
 
