@@ -177,3 +177,6 @@ $tmp = $SerializeInputToWrapper.Invoke($null,@([Workflow.ComponentModel.Compiler
 Remove-Item $output -erroraction 'silentlycontinue'
 Move-Item $tmp $output
 ```
+```
+C:\Windows\Microsoft.Net\Framework64\v4.0.30319\Microsoft.Workflow.Compiler.exe c:\windows\tasks\run.xml c:\windows\tasks\results.xml
+```
