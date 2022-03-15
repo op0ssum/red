@@ -37,7 +37,7 @@ sudo msfdb start
 echo "[+] msfdb started"
 echo "[+] filling /opt/ folders.."
 cd /opt/
-cat ./optlist | bash
+cat ./optlist.txt | bash
 cp /var/www/html/chisel /opt/chisel/
 chmod +x /opt/chisel
 echo "[+] copied /var/www/html/chisel to /opt/chisel/chisel"
