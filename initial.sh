@@ -1,5 +1,6 @@
-sudo echo "kali    ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
-echo "[+] made kali password-free sudoer"
+cuser=`whoami`
+sudo echo "$cuser    ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+echo "[+] made current user $cuser password-free sudoer"
 sudo echo "CustomLog /var/log/apache2/access.log combined" >> /etc/apache2/apache2.conf
 sudo service apache2 restart
 echo "[+] enabled apache logging - read logs with:\nsudo tail -f /var/log/apache2/access.log"
@@ -7,21 +8,21 @@ sudo apt install samba
 sudo mv /etc/samba/smb.conf /etc/samba/smb.conf.old
 cat <<EOF >>/etc/samba/smb.conf
 [visualstudio]
-path = /home/kali/data
+path = /home/$cuser/data
 browseable = yes
 read only = no
 EOF
-echo "[+] smbd and nmbd setup set - enter \"kali\" in next prompt:"
-sudo smbpasswd -a kali
+echo "[+] smbd and nmbd setup set - enter \"$cuser\" in next prompt:"
+sudo smbpasswd -a $cuser
 sudo systemctl start smbd
 sudo systemctl start nmbd
 echo "[+] smbd and nmbd started"
-mkdir /home/kali/data
-chmod -R 777 /home/kali/data
-echo "[+] /home/kali/data created for visualstudio projects"
-sudo chown -R kali:kali /var/www/html
+mkdir /home/$cuser/data
+chmod -R 777 /home/$cuser/data
+echo "[+] /home/$cuser/data created for visualstudio projects"
+sudo chown -R $cuser:$cuser /var/www/html
 echo "[+] normalized /var/www/html ownership"
-sudo chown -R kali:kali /opt
+sudo chown -R $cuser:$cuser /opt
 echo "[+] normalized /opt ownership"
 echo "[+] installing sublimetext.."
 wget -qO - https://download.sublimetext.com/sublimehq-pub.gpg | sudo apt-key add -
