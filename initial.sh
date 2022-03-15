@@ -35,9 +35,10 @@ echo "[+] installing mono.."
 sudo apt-get install mono-complete
 sudo msfdb start
 echo "[+] msfdb started"
-echo "[+] filling /opt/ folders.."
-cd /opt/
-cat ./optlist.txt | bash
+for i in $(cat ./optlist.txt);do 
+j=`echo $i | rev | cut -d"/" -f1 | rev`
+git clone $i /opt/$j
+done
 cp /var/www/html/chisel /opt/chisel/
 chmod +x /opt/chisel
 echo "[+] copied /var/www/html/chisel to /opt/chisel/chisel"
