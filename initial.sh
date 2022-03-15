@@ -1,4 +1,8 @@
-cuser=`whoami`
+if [ "$EUID" -ne 0 ]
+  then echo "[!] please run with sudo - and i mean sudo, not root"
+  exit
+fi
+cuser=$SUDO_USER
 sudo echo "$cuser    ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 echo "[+] made current user $cuser password-free sudoer"
 sudo echo "CustomLog /var/log/apache2/access.log combined" >> /etc/apache2/apache2.conf
