@@ -40,6 +40,7 @@ echo "[+] installing mono.."
 sudo apt-get install mono-complete
 sudo msfdb start
 echo "[+] msfdb started"
+echo "[+] filling /opt .."
 for i in $(cat ./optlist.txt);do 
 j=`echo $i | rev | cut -d"/" -f1 | rev`
 git clone $i /opt/$j
