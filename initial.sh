@@ -1,6 +1,6 @@
-if [ "$EUID" -ne 0 ]
-  then echo "[!] please run with sudo - and i mean sudo, not root"
-  exit
+if [ "$(id -u)" -ne "0" ] ; then
+    echo "[+] run this script with sudo - and i mean sudo, not root. aborting"
+    exit 1
 fi
 cuser=$SUDO_USER
 sudo echo "$cuser    ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
