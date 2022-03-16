@@ -383,11 +383,11 @@ $cred = New-Object System.Management.Automation.PSCredential -ArgumentList $user
 ```
 powershell encode b64
 ```
-# encode from binary file to base64txt
-powershell -C "& {$outpath = (Join-Path (pwd) 'out_base64.txt'); $inpath = (Join-Path (pwd) 'data.jpg'); [IO.File]::WriteAllText($outpath, ([convert]::ToBase64String(([IO.File]::ReadAllBytes($inpath)))))}"
+# encode
+$base64string = [Convert]::ToBase64String([IO.File]::ReadAllBytes($FileName))
 
-# decode from base64txt to binary file
-powershell -C "& {$outpath = (Join-Path (pwd) 'outdata2.jpg'); $inpath = (Join-Path (pwd) 'out_base64.txt'); [IO.File]::WriteAllBytes($outpath, ([convert]::FromBase64String(([IO.File]::ReadAllText($inpath)))))}"
+# decode
+[IO.File]::WriteAllBytes($FileName, [Convert]::FromBase64String($base64string))
 ```
 printspoofer
 ```
