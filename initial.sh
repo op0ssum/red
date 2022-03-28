@@ -21,13 +21,6 @@ sudo smbpasswd -a $cuser
 sudo systemctl start smbd
 sudo systemctl start nmbd
 echo "[+] smbd and nmbd started"
-mkdir /home/$cuser/data
-chmod -R 777 /home/$cuser/data
-echo "[+] /home/$cuser/data created for visualstudio projects"
-sudo chown -R $cuser:$cuser /var/www/html
-echo "[+] normalized /var/www/html ownership"
-sudo chown -R $cuser:$cuser /opt
-echo "[+] normalized /opt ownership"
 echo "[+] installing sublimetext.."
 wget -qO - https://download.sublimetext.com/sublimehq-pub.gpg | sudo apt-key add -
 sudo apt-get install apt-transport-https
@@ -45,6 +38,15 @@ for i in $(cat ./optlist.txt);do
 j=`echo $i | rev | cut -d"/" -f1 | rev`
 git clone $i /opt/$j
 done
+mkdir /home/$cuser/data
+chmod -R 777 /home/$cuser/data
+echo "[+] /home/$cuser/data created for visualstudio projects"
+sudo chown -R $cuser:$cuser /var/www/html
+echo "[+] normalized /var/www/html ownership"
+sudo chown -R $cuser:$cuser /opt
+echo "[+] normalized /opt ownership"
+echo "[+] copying html to /var/www/html .."
+cp -r html /var/www/
 cp /var/www/html/chisel /opt/chisel/
 chmod +x /opt/chisel
 echo "[+] copied /var/www/html/chisel to /opt/chisel/chisel"
