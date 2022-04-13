@@ -24,7 +24,7 @@ pip install frida-tools
 
 frida objection setup [sauce](https://gowthamr1.medium.com/android-ssl-pinning-bypass-using-objection-and-frida-scripts-f8199571e7d8)
 ```
-# start the patched apk no android phone
+# start the patched apk on android phone - see that it starts with blank page (it's waiting for frida)
 
 # powershell window
 frida-trace -U -i open Gadget
