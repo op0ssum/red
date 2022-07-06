@@ -27,6 +27,8 @@ sudo apt-get install apt-transport-https
 echo "deb https://download.sublimetext.com/ apt/stable/" | sudo tee /etc/apt/sources.list.d/sublime-text.list
 sudo apt-get update
 sudo apt-get install sublime-text
+echo "[+] installing krb5-user.."
+sudo apt-get install krb5-user
 echo "[+] installing oletools.."
 sudo -H pip install -U oletools
 echo "[+] installing mono.."
