@@ -35,6 +35,7 @@ https://github.com/CiscoCXSecurity/creddump7
 https://github.com/chenjj/espoofer
 https://github.com/nidem/kerberoast
 https://github.com/hashcat/kwprocessor
+https://github.com/ambionics/phpggc
 https://github.com/cwolff411/powerob
 https://github.com/DominicBreuker/pspy
 https://github.com/gentilkiwi/mimikatz
