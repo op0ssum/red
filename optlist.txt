@@ -42,6 +42,7 @@ https://github.com/cwolff411/powerob
 https://github.com/DominicBreuker/pspy
 https://github.com/gentilkiwi/mimikatz
 https://github.com/int0x33/nc.exe
+https://github.com/silentsignal/rsa_sign2n
 https://github.com/mikechabot/smtp-email-spoofer-py
 https://github.com/trustedsec/social-engineer-toolkit
 https://github.com/Zer1t0/ticket_converter
