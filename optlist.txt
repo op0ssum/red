@@ -14,7 +14,7 @@ https://github.com/leoloobeek/LAPSToolkit
 https://github.com/notdodo/LocalAdminSharp
 https://github.com/ajinabraham/Node.Js-Security-Course
 https://github.com/carlospolop/PEASS-ng
-https://github.com/PowerShellMafia/PowerSploit/tree/master
+https://github.com/ZeroDayLab/PowerSploit
 https://github.com/NetSPI/PowerUpSQL
 https://github.com/Kevin-Robertson/Powermad
 https://github.com/itm4n/PrintSpoofer
