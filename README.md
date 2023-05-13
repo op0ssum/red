@@ -103,9 +103,9 @@ Add-DomainGroupMember -Identity 'MAILADMINS' -Members 'willy' -Credential $Cred 
 get-domainuser willy
 Get-DomainGroupMember -Identity 'MAILADMINS'
 ```
-bloodhound with ldap (non-domain-joined) (make sure dns can find domain fqdn)
+bloodhound with ldap (non-domain-joined) (either make sure dns can find domain fqdn or specify DC)
 ```
-invoke-bloodhound -collectionmethod all -domain "final.com" -LDAPUser "jack" -LDAPPass "P@ssw0rd"
+invoke-bloodhound -collectionmethod all -domain "final.com" -LDAPUser "jack" -LDAPPass "P@ssw0rd" -DomainController 10.10.10.10
 ```
 check clr version
 ```
