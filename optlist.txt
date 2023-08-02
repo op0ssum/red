@@ -22,9 +22,11 @@ https://github.com/0x09AL/RdpThief
 https://github.com/GhostPack/Rubeus
 https://github.com/rvrsh3ll/Rubeus-Rundll32
 https://github.com/Mr-Un1k0d3r/SCShell
+https://github.com/GhostPack/Seatbelt
 https://github.com/0xthirteen/SharpRDP
 https://github.com/mdsecactivebreach/SharpShooter
 https://github.com/GhostPack/SharpUp
+https://github.com/mandiant/SilkETW
 https://github.com/vletoux/SpoolerScanner
 https://github.com/leechristensen/SpoolSample
 https://github.com/latortuga71/TortugaToolKit
