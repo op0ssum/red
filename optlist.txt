@@ -43,6 +43,7 @@ https://github.com/hashcat/kwprocessor
 https://github.com/ambionics/phpggc
 https://github.com/cwolff411/powerob
 https://github.com/DominicBreuker/pspy
+https://github.com/threatexpress/malleable-c2
 https://github.com/gentilkiwi/mimikatz
 https://github.com/int0x33/nc.exe
 https://github.com/silentsignal/rsa_sign2n
