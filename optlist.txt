@@ -9,6 +9,7 @@ https://github.com/mo-xiaoxi/ESpoofing
 https://github.com/outflanknl/EvilClippy
 https://github.com/rvrsh3ll/FindFrontableDomains
 https://github.com/r3motecontrol/Ghostpack-CompiledBinaries
+https://github.com/DragoQCC/HardHatC2
 https://github.com/danielbohannon/Invoke-Obfuscation
 https://github.com/411Hall/JAWS
 https://github.com/leoloobeek/LAPSToolkit
