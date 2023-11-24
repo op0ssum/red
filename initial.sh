@@ -24,21 +24,21 @@ echo "[+] smbd and nmbd started"
 echo "[+] installing sublimetext.."
 wget -qO - https://download.sublimetext.com/sublimehq-pub.gpg | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/sublimehq-archive.gpg > /dev/null
 echo "deb https://download.sublimetext.com/ apt/stable/" | sudo tee /etc/apt/sources.list.d/sublime-text.list
-sudo apt-get update
-sudo apt-get install apt-transport-https
-sudo apt-get install sublime-text
+sudo apt-get -y update
+sudo apt-get -y install apt-transport-https
+sudo apt-get -y install sublime-text
 echo "[+] installing krb5-user.."
-sudo apt-get install krb5-user
+sudo apt-get -y install krb5-user
 echo "[+] installing oletools.."
 sudo -H pip install -U oletools
 echo "[+] installing awscli.."
-sudo -H pip install -U awscli
+sudo apt-get -y install awscli
 echo "[+] installing mono.."
-sudo apt install dirmngr ca-certificates gnupg
+sudo apt -y install dirmngr ca-certificates gnupg
 sudo gpg --homedir /tmp --no-default-keyring --keyring /usr/share/keyrings/mono-official-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
 echo "deb [signed-by=/usr/share/keyrings/mono-official-archive-keyring.gpg] https://download.mono-project.com/repo/debian stable-buster main" | sudo tee /etc/apt/sources.list.d/mono-official-stable.list
-sudo apt update
-sudo apt-get install mono-devel
+sudo apt -y update
+sudo apt-get -y install mono-devel
 sudo msfdb start
 echo "[+] msfdb started"
 echo "[+] filling /opt .."
