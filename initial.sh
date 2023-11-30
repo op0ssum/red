@@ -27,6 +27,10 @@ echo "deb https://download.sublimetext.com/ apt/stable/" | sudo tee /etc/apt/sou
 sudo apt-get -y update
 sudo apt-get -y install apt-transport-https
 sudo apt-get -y install sublime-text
+echo "[+] installing NetExec.."
+apt install pipx git
+pipx ensurepath
+pipx install git+https://github.com/Pennyw0rth/NetExec
 echo "[+] installing krb5-user.."
 sudo apt-get -y install krb5-user
 echo "[+] installing oletools.."
