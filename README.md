@@ -572,6 +572,10 @@ echo "c3NoLXJzYSBBQUFBQjNOemFDMXljMkVBQUFBREFRQUJBQUFCZ1FESnNwNHNlTktrZXRwaE40Y0
 ```
 ssh -i ~/.ssh/id_rsa 'pat@corpy.com'@192.168.106.164
 ```
+sshuttle usage
+```
+sshuttle -r root@nextcloud 192.168.20.0/24 192.168.21.0/24 192.168.22.0/24 192.168.23.0/24 192.168.24.0/24 -e 'ssh -i /home/kali/.ssh/id_rsa' -v
+```
 tar compress everything in a directory [sauce](https://stackoverflow.com/questions/3651791/tar-add-all-files-and-directories-in-current-directory-including-svn-and-so-on)
 ```
 cd ..
