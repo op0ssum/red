@@ -70,8 +70,8 @@ wget https://github.com/kost/revsocks/releases/download/v2.8/revsocks_linux_amd6
 wget https://github.com/kost/revsocks/releases/download/v2.8/revsocks_linux_386
 chmod +x /opt/revsocks/revsocks_linux_amd64
 chmod +x /opt/revsocks/revsocks_linux_386
-cp /opt/revsocks_windows_amd64.exe /var/www/html/
-cp /opt/revsocks_windows_386.exe /var/www/html/
-cp /opt/revsocks_linux_amd64.exe /var/www/html/
-cp /opt/revsocks_linux_386.exe /var/www/html/
+cp /opt/revsocks/revsocks_windows_amd64.exe /var/www/html/
+cp /opt/revsocks/revsocks_windows_386.exe /var/www/html/
+cp /opt/revsocks/revsocks_linux_amd64 /var/www/html/
+cp /opt/revsocks/revsocks_linux_386 /var/www/html/
 echo "[+] copied revsocks binaries to /var/www/html/"
