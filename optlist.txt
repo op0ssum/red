@@ -1,3 +1,4 @@
+https://github.com/mandiant/ADFSDump
 https://github.com/fox-it/BloodHound.py
 https://github.com/mdsecactivebreach/Chameleon
 https://github.com/cobbr/Covenant
@@ -54,3 +55,12 @@ https://github.com/trustedsec/social-engineer-toolkit
 https://github.com/Zer1t0/ticket_converter
 https://github.com/trinitronx/vncpasswd.py
 https://github.com/frohoff/ysoserial
+https://github.com/ajpc500/BOFs
+https://github.com/m3rcer/Chisel-Strike
+https://github.com/trustedsec/CS-Situational-Awareness-BOF
+https://github.com/mgeeky/cobalt-arsenal
+https://github.com/josephkingstone/cobalt_strike_extension_kit
+https://github.com/anthemtotheego/InlineExecute-Assembly
+https://github.com/Octoberfest7/KDStab
+https://github.com/wavvs/nanorobeus
+git clone https://github.com/rxwx/spoolsystem
