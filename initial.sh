@@ -62,7 +62,7 @@ cp -r html /var/www/
 cp /var/www/html/chisel /opt/chisel/
 chmod +x /opt/chisel/chisel
 echo "[+] copied /var/www/html/chisel to /opt/chisel/chisel"
-echo "[+] download revsocks linux and windows binaries to /opt/revsocks.."
+echo "[+] downloading revsocks linux and windows binaries to /opt/revsocks.."
 mkdir /opt/revsocks
 wget https://github.com/kost/revsocks/releases/download/v2.8/revsocks_windows_amd64.exe
 wget https://github.com/kost/revsocks/releases/download/v2.8/revsocks_windows_386.exe
