@@ -63,4 +63,4 @@ https://github.com/josephkingstone/cobalt_strike_extension_kit
 https://github.com/anthemtotheego/InlineExecute-Assembly
 https://github.com/Octoberfest7/KDStab
 https://github.com/wavvs/nanorobeus
-git clone https://github.com/rxwx/spoolsystem
+https://github.com/rxwx/spoolsystem
