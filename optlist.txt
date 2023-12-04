@@ -23,7 +23,7 @@ https://github.com/itm4n/PrintSpoofer
 https://github.com/0x09AL/RdpThief
 https://github.com/GhostPack/Rubeus
 https://github.com/rvrsh3ll/Rubeus-Rundll32
-https://github.com/optiv/ScareCrow
+https://github.com/Tylous/ScareCrow
 https://github.com/Mr-Un1k0d3r/SCShell
 https://github.com/GhostPack/Seatbelt
 https://github.com/0xthirteen/SharpRDP
