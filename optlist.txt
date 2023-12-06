@@ -1,4 +1,5 @@
 https://github.com/mandiant/ADFSDump
+https://github.com/mandiant/ADFSpoof
 https://github.com/fox-it/BloodHound.py
 https://github.com/mdsecactivebreach/Chameleon
 https://github.com/cobbr/Covenant
