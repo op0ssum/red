@@ -28,6 +28,7 @@ https://github.com/0x09AL/RdpThief
 https://github.com/GhostPack/Rubeus
 https://github.com/rvrsh3ll/Rubeus-Rundll32
 https://github.com/Tylous/ScareCrow
+https://github.com/0xthirteen/SharpStay
 https://github.com/0xthirteen/StayKit
 https://github.com/Mr-Un1k0d3r/SCShell
 https://github.com/GhostPack/Seatbelt
