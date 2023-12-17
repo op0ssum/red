@@ -48,6 +48,7 @@ https://github.com/chenjj/espoofer
 https://github.com/lmammino/jwt-cracker
 https://github.com/wallarm/jwt-secrets
 https://github.com/nidem/kerberoast
+https://github.com/dirkjanm/krbrelayx
 https://github.com/hashcat/kwprocessor
 https://github.com/ambionics/phpggc
 https://github.com/cwolff411/powerob
