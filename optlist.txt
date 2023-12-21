@@ -40,6 +40,7 @@ https://github.com/mandiant/SilkETW
 https://github.com/vletoux/SpoolerScanner
 https://github.com/leechristensen/SpoolSample
 https://github.com/latortuga71/TortugaToolKit
+https://github.com/dirkjanm/adconnectdump
 https://github.com/iagox86/dnscat2
 https://github.com/jpillora/chisel
 https://github.com/calebstewart/bypass-clm
