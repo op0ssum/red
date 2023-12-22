@@ -20,6 +20,7 @@ https://github.com/notdodo/LocalAdminSharp
 https://github.com/ajinabraham/Node.Js-Security-Course
 https://github.com/carlospolop/PEASS-ng
 https://github.com/PowerShellMafia/PowerSCCM
+https://github.com/S3cur3Th1sSh1t/PowerSharpPack
 https://github.com/ZeroDayLab/PowerSploit
 https://github.com/NetSPI/PowerUpSQL
 https://github.com/Kevin-Robertson/Powermad
