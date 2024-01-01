@@ -5930,3 +5930,5 @@ function Revoke-WmiNameSpaceRead {
         throw "SetSecurityDescriptor failed: $($Output.ReturnValue)"
     }
 }
+
+Find-LocalSccmInfo
