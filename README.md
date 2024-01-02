@@ -755,6 +755,16 @@ tail -f requests.log
   "certPool": ""
 }
 ```
+muraena usage - refer config.toml separately
+```
+mkdir /opt/muraena
+cd /opt/muraena
+wget https://github.com/muraenateam/muraena/releases/download/v1.12/muraena_linux_amd64
+./muraena_linux_amd64 -config config.toml
+```
+```
+
+```
 met socks
 ```
 background
