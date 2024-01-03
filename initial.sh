@@ -75,3 +75,19 @@ cp /opt/revsocks/revsocks_windows_386.exe /var/www/html/
 cp /opt/revsocks/revsocks_linux_amd64 /var/www/html/
 cp /opt/revsocks/revsocks_linux_386 /var/www/html/
 echo "[+] copied revsocks binaries to /var/www/html/"
+echo "[+] git clone CrossC2 branch cs4.1 to /opt/CrossC2..."
+git clone -b cs4.1 https://github.com/gloxec/CrossC2 /opt/CrossC2
+echo "[+] downloading CrossC2 binaries to /opt/CrossC2/src"
+wget https://github.com/gloxec/CrossC2/releases/download/v3.3/CrossC2-GithubBot-2023-11-20.cna -P /opt/CrossC2/src
+wget https://github.com/gloxec/CrossC2/releases/download/v3.3/CrossC2Kit-GithubBot-2023-11-20.zip -P /opt/CrossC2/src
+wget https://github.com/gloxec/CrossC2/releases/download/v3.3/genCrossC2.Linux -P /opt/CrossC2/src
+wget https://github.com/gloxec/CrossC2/releases/download/v3.3/genCrossC2.MacOS -P /opt/CrossC2/src
+unzip /opt/CrossC2/src/CrossC2Kit-GithubBot-2023-11-20.zip -d /opt/CrossC2/src/
+echo "[+] prepping CrossC2.cna"
+sed -i 's+/xxx/xx/xx/+/opt/CrossC2/src+g' /opt/CrossC2/src/CrossC2.cna
+sed -i 's+genCrossC2.MacOS+genCrossC2.Linux+g' /opt/CrossC2/src/CrossC2.cna
+echo "[+] check: head -n 5 /opt/CrossC2/src/CrossC2.cna -> must see /opt/CrossC2/src and genCrossC2.Linux"
+head -n 5 /opt/CrossC2/src/CrossC2.cna
+echo "[+] copying .cobaltstrike.beacon_keys to /opt/CrossC2/src/ - assuming /opt/cs/cobaltstrike"
+cp /opt/cs/cobaltstrike/.cobaltstrike.beacon_keys /opt/CrossC2/src/
+echo "[+] CrossC2 prep done - rmb to add cna script on cs: /opt/CrossC2/src/CrossC2.cna"
