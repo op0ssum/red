@@ -763,7 +763,11 @@ wget https://github.com/muraenateam/muraena/releases/download/v1.12/muraena_linu
 ./muraena_linux_amd64 -config config.toml
 ```
 ```
-
+# redis requirement (redis on kali)
+sudo apt-get update
+sudo apt-get -y install redis
+redis-server --daemonize yes
+ps aux | grep redis
 ```
 met socks
 ```
