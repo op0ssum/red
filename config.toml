@@ -142,6 +142,7 @@
     expand = false
     certificate = "/path/to/pem/req/x509/DOMAIN.com.pem"
     key = "/path/to/CSR/genrsa/request/DOMAIN.com.key"
+    # root: cat cert.pem ca.pem > fullchain.pem
     root = "/path/to/fullchain/combined/from/pem/and/csr/DOMAIN.com.fullchain.pem"
 
         #
