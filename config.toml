@@ -140,7 +140,7 @@
     # Expand allows to replace the content of the certificate/key/root parameters to their content instead of the
     # filepath
     expand = false
-    certificate = "/path/to/cert/downloaded/from/CA/DOMAIN.com.pem"
+    certificate = "/path/to/pem/req/x509/DOMAIN.com.pem"
     key = "/path/to/CSR/genrsa/request/DOMAIN.com.key"
     root = "/path/to/fullchain/combined/from/pem/and/csr/DOMAIN.com.fullchain.pem"
 
