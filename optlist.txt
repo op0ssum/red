@@ -4,7 +4,6 @@ https://github.com/samratashok/ADModule
 https://github.com/fox-it/BloodHound.py
 https://github.com/mdsecactivebreach/Chameleon
 https://github.com/cobbr/Covenant
-https://github.com/gloxec/CrossC2
 https://github.com/tyranid/DotNetToJScript
 https://github.com/Keramas/DS_Walk
 https://github.com/BC-SECURITY/Empire
