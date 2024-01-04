@@ -31,6 +31,7 @@ https://github.com/0x09AL/RdpThief
 https://github.com/GhostPack/Rubeus
 https://github.com/rvrsh3ll/Rubeus-Rundll32
 https://github.com/Tylous/ScareCrow
+https://github.com/b4rtik/SharpAdidnsdump
 https://github.com/GhostPack/SharpDPAPI
 https://github.com/0xthirteen/SharpStay
 https://github.com/0xthirteen/StayKit
