@@ -88,6 +88,6 @@ sed -i 's+/xxx/xx/xx/+/opt/CrossC2/src+g' /opt/CrossC2/src/CrossC2.cna
 sed -i 's+genCrossC2.MacOS+genCrossC2.Linux+g' /opt/CrossC2/src/CrossC2.cna
 echo "[+] check: head -n 5 /opt/CrossC2/src/CrossC2.cna -> must see /opt/CrossC2/src and genCrossC2.Linux"
 head -n 5 /opt/CrossC2/src/CrossC2.cna
-echo "[+] copying .cobaltstrike.beacon_keys to /opt/CrossC2/src/ - assuming /opt/cs/cobaltstrike"
-cp /opt/cs/cobaltstrike/.cobaltstrike.beacon_keys /opt/CrossC2/src/
-echo "[+] CrossC2 prep done - rmb to add cna script on cs: /opt/CrossC2/src/CrossC2.cna"
+echo "[+] copying contents of /opt/CrossC2/src/ to /opt/cs/cobaltstrike/
+cp -r /opt/CrossC2/src/ /opt/cs/cobaltstrike/
+echo "[+] CrossC2 prep done - rmb to add cna script on cs: /opt/cs/cobaltstrike/CrossC2.cna"
