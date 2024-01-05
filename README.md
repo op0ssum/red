@@ -1032,7 +1032,7 @@ ssl cert generation, with a CA
 ```
 # start with CSR
 openssl genrsa -out DOMAIN.com.key 4096
-openssl req -new -key DOMAIN.com.key -out DOMAIN.com.csr -utf8 -batch -subj '/CN=00security.com/emailAddress=info@DOMAIN.com'
+openssl req -new -key DOMAIN.com.key -out DOMAIN.com.csr -utf8 -batch -subj '/CN=DOMAIN.com/emailAddress=info@DOMAIN.com'
 # output: DOMAIN.com.csr
 openssl req -x509 -new -nodes -key DOMAIN.com.key -sha256 -days 1024 -out DOMAIN.com.pem
 # output: DOMAIN.com.pem
