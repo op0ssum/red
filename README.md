@@ -918,6 +918,10 @@ Set-Location 'C:\Program Files (x86)\Microsoft Configuration Manager\AdminConsol
 Import-Module .\ConfigurationManager.psd1
 New-PSDrive -Name "HO2" -PSProvider "CMSite" -Root "sccm.DOMAIN.local" -Description "HO2"
 ```
+powerview acl perms of specific domain group
+```
+Get-DomainGroup | Get-ObjectAcl -ResolveGUIDs | Foreach-Object {$_ | Add-Member -NotePropertyName Identity -NotePropertyValue (ConvertFrom-SID $_.SecurityIdentifier.value) -Force; $_ | where-object Identity -match "DOMAIN\\GROUP"}
+```
 powerview get user memberof
 ```
 get-netuser | select name,samaccountname,objectsid,memberof
@@ -932,7 +936,7 @@ Get-DomainComputer | Get-ObjectAcl -ResolveGUIDs | Foreach-Object {$_ | Add-Memb
 ```
 powerview writedacl
 ```
-Get-DomainComputer | Get-ObjectAcl -ResolveGUIDs | Foreach-Object {$_ | Add-Member -NotePropertyName Identity -NotePropertyValue (ConvertFrom-SID $_.SecurityIdentifier.value) -Force; $_ | where-object {($_.ActiveDirectoryRights -match "WriteDACL")} | Select AceType,ObjectDN,ObjectSID,ActiveDirectoryRights,Identity}
+Get-DomainUser | Get-ObjectAcl -ResolveGUIDs | Foreach-Object {$_ | Add-Member -NotePropertyName Identity -NotePropertyValue (ConvertFrom-SID $_.SecurityIdentifier.value) -Force; $_ | where-object {($_.ActiveDirectoryRights -match "WriteDACL")} | Select AceType,ObjectDN,ObjectSID,ActiveDirectoryRights,Identity}
 ```
 powerview forcechangepassword
 ```
