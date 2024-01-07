@@ -1140,6 +1140,14 @@ tar compress everything in a directory [sauce](https://stackoverflow.com/questio
 cd ..
 tar -czf workspace.tar.gz workspace
 ```
+tcpdump specific port
+```
+sudo tcpdump -n -i tun0 port 443
+```
+tcpdump ping
+```
+sudo tcpdump -i tun0 ip proto \\icmp
+```
 unconstrained delegation (notes: always use meterpreter to run rubeus and capture tix!!)
 ```
 Get-DomainComputer -Unconstrained
