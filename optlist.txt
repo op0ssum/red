@@ -17,6 +17,7 @@ https://github.com/danielbohannon/Invoke-Obfuscation
 https://github.com/411Hall/JAWS
 https://github.com/leoloobeek/LAPSToolkit
 https://github.com/notdodo/LocalAdminSharp
+https://github.com/NetSPI/MicroBurst
 https://github.com/ajinabraham/Node.Js-Security-Course
 https://github.com/carlospolop/PEASS-ng
 https://github.com/PowerShellMafia/PowerSCCM
