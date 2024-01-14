@@ -65,6 +65,7 @@ https://github.com/DominicBreuker/pspy
 https://github.com/threatexpress/malleable-c2
 https://github.com/gentilkiwi/mimikatz
 https://github.com/int0x33/nc.exe
+https://github.com/mdsecactivebreach/o365-attack-toolkit
 https://github.com/silentsignal/rsa_sign2n
 https://github.com/kost/revsocks
 https://github.com/mikechabot/smtp-email-spoofer-py
