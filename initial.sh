@@ -8,7 +8,7 @@ echo "[+] made current user $cuser password-free sudoer"
 sudo echo "CustomLog /var/log/apache2/access.log combined" >> /etc/apache2/apache2.conf
 sudo service apache2 restart
 echo "[+] enabled apache logging - read logs with:\nsudo tail -f /var/log/apache2/access.log"
-sudo apt install samba
+sudo apt install -y samba
 sudo mv /etc/samba/smb.conf /etc/samba/smb.conf.old
 cat <<EOF >>/etc/samba/smb.conf
 [visualstudio]
