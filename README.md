@@ -1058,6 +1058,10 @@ smbmap usage
 ```
 proxychains -q -f nextcloud.conf smbmap -u 'hola' -p 'P@ssw0rd' -H 192.168.20.10
 ```
+smbget usage
+```
+smbget --recursive smb://authority.htb/Development/Automation/Ansible/PWM --user 'fake'%''
+```
 sql enum
 ```
 exec sp_linkedservers;
