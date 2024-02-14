@@ -31,6 +31,8 @@ echo "[+] installing NetExec.."
 apt install pipx git
 pipx ensurepath
 pipx install git+https://github.com/Pennyw0rth/NetExec
+echo "[+] installing ansible-core.."
+pipx install ansible-core
 echo "[+] installing krb5-user.."
 sudo apt-get -y install krb5-user
 echo "[+] installing oletools.."
