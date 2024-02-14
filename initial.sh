@@ -8,6 +8,13 @@ echo "[+] made current user $cuser password-free sudoer"
 sudo echo "CustomLog /var/log/apache2/access.log combined" >> /etc/apache2/apache2.conf
 sudo service apache2 restart
 echo "[+] enabled apache logging - read logs with:\nsudo tail -f /var/log/apache2/access.log"
+echo "[+] installing sublimetext.."
+wget -qO - https://download.sublimetext.com/sublimehq-pub.gpg | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/sublimehq-archive.gpg > /dev/null
+echo "deb https://download.sublimetext.com/ apt/stable/" | sudo tee /etc/apt/sources.list.d/sublime-text.list
+sudo apt-get -y update
+sudo apt-get -y install apt-transport-https
+sudo apt-get -y install sublime-text
+echo "[+] installing and setting up samba.."
 sudo apt install -y samba
 sudo mv /etc/samba/smb.conf /etc/samba/smb.conf.old
 cat <<EOF >>/etc/samba/smb.conf
@@ -21,12 +28,8 @@ sudo smbpasswd -a $cuser
 sudo systemctl start smbd
 sudo systemctl start nmbd
 echo "[+] smbd and nmbd started"
-echo "[+] installing sublimetext.."
-wget -qO - https://download.sublimetext.com/sublimehq-pub.gpg | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/sublimehq-archive.gpg > /dev/null
-echo "deb https://download.sublimetext.com/ apt/stable/" | sudo tee /etc/apt/sources.list.d/sublime-text.list
-sudo apt-get -y update
-sudo apt-get -y install apt-transport-https
-sudo apt-get -y install sublime-text
+echo "[+] installing seclists.."
+sudo apt-get -y install seclists
 echo "[+] installing NetExec.."
 apt install pipx git
 pipx ensurepath
