@@ -28,6 +28,7 @@ https://github.com/NetSPI/PowerUpSQL
 https://github.com/Kevin-Robertson/Powermad
 https://github.com/itm4n/PrintSpoofer
 https://github.com/dirkjanm/PrivExchange
+https://github.com/danielbohannon/Revoke-Obfuscation
 https://github.com/0x09AL/RdpThief
 https://github.com/GhostPack/Rubeus
 https://github.com/rvrsh3ll/Rubeus-Rundll32
