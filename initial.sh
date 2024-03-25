@@ -103,5 +103,8 @@ echo "[+] building ligolo-ng"
 cd /opt/ligolo-ng
 go build -o agent cmd/agent/main.go
 go build -o proxy cmd/proxy/main.go
+GOOS=windows go build -o agent.exe cmd/agent/main.go
+GOOS=windows go build -o proxy.exe cmd/proxy/main.go
 cp /opt/ligolo-ng/agent /var/www/html/
-echo "[+] built ligolo-ng, copied agent binary to /var/www/html/"
+cp /opt/ligolo-ng/agent.exe /var/www/html/
+echo "[+] built ligolo-ng, copied agent binaries to /var/www/html/"
