@@ -60,6 +60,7 @@ https://github.com/nidem/kerberoast
 https://github.com/dirkjanm/krbrelayx
 https://github.com/hashcat/kwprocessor
 https://github.com/yaap7/ldapsearch-ad
+https://github.com/nicocha30/ligolo-ng
 https://github.com/ambionics/phpggc
 https://github.com/cwolff411/powerob
 https://github.com/DominicBreuker/pspy
