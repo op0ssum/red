@@ -104,3 +104,4 @@ cd /opt/ligolo-ng
 go build -o agent cmd/agent/main.go
 go build -o proxy cmd/proxy/main.go
 cp /opt/ligolo-ng/agent /var/www/html/
+echo "[+] built ligolo-ng, copied agent binary to /var/www/html/"
