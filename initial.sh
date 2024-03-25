@@ -96,5 +96,10 @@ sed -i 's+genCrossC2.MacOS+genCrossC2.Linux+g' /opt/CrossC2/src/CrossC2.cna
 echo "[+] check: head -n 5 /opt/CrossC2/src/CrossC2.cna -> must see /opt/CrossC2/src and genCrossC2.Linux"
 head -n 5 /opt/CrossC2/src/CrossC2.cna
 echo "[+] copying contents of /opt/CrossC2/src/ to /opt/cs/cobaltstrike/"
+mkdir -p /opt/cs/cobaltstrike
 cp -r /opt/CrossC2/src/ /opt/cs/cobaltstrike/
 echo "[+] CrossC2 prep done - rmb to add cna script on cs: /opt/cs/cobaltstrike/CrossC2.cna"
+echo "[+] building ligolo-ng"
+cd /opt/ligolo-ng
+go build -o agent cmd/agent/main.go
+go build -o proxy cmd/proxy/main.go
