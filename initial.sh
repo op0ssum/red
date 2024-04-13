@@ -108,3 +108,5 @@ GOOS=windows go build -o proxy.exe cmd/proxy/main.go
 cp /opt/ligolo-ng/agent /var/www/html/
 cp /opt/ligolo-ng/agent.exe /var/www/html/
 echo "[+] built ligolo-ng, copied agent binaries to /var/www/html/"
+echo "[+] downloading kwp release"
+wget https://github.com/hashcat/kwprocessor/releases/download/v1.00/kwprocessor-1.00.7z -P /opt/kwprocessor
