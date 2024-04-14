@@ -16,6 +16,7 @@ https://github.com/DragoQCC/HardHatC2
 https://github.com/Kevin-Robertson/Inveigh
 https://github.com/danielbohannon/Invoke-Obfuscation
 https://github.com/411Hall/JAWS
+https://github.com/GhostPack/KeeThief
 https://github.com/leoloobeek/LAPSToolkit
 https://github.com/notdodo/LocalAdminSharp
 https://github.com/NetSPI/MicroBurst
