@@ -9,6 +9,7 @@ git
 gnupg
 jq
 krb5-user
+mono-devel
 pipx
 rlwrap
 samba
