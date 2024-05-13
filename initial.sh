@@ -112,3 +112,4 @@ sudo ./idafree84_linux.run
 sudo ln -s /opt/idafree-8.4/ida64 /usr/bin
 echo "[+] checking ida64 installation: should see a /bin/ida64"
 which ida64
+rm ./idafree84_linux.run
