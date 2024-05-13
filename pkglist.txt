@@ -1,1 +1,15 @@
-
+apt-transport-https
+awscli
+ca-certificates
+checksec
+dirmngr
+gdb
+ghidra
+git
+gnupg
+jq
+krb5-user
+pipx
+samba
+sublime-text
+seclists  
