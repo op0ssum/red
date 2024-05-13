@@ -103,3 +103,12 @@ echo "[+] downloading kwp release"
 wget https://github.com/hashcat/kwprocessor/releases/download/v1.00/kwprocessor-1.00.7z -P /opt/kwprocessor
 echo "[+] install GEF for gdb"
 bash -c "$(curl -fsSL https://gef.blah.cat/sh)"
+echo "[+] last but not least, installing IDA Free as ida64 .. using all default options during installation"
+wget https://out7.hex-rays.com/files/idafree84_linux.run
+chmod +x idafree84_linux.run
+echo "[+] standby to click a few times"
+sleep 3
+sudo ./idafree84_linux.run
+sudo ln -s /opt/idafree-8.4/ida64 /usr/bin
+echo "[+] checking ida64 installation: should see a /bin/ida64"
+which ida64
