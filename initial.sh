@@ -8,10 +8,13 @@ echo "[+] made current user $cuser password-free sudoer"
 sudo echo "CustomLog /var/log/apache2/access.log combined" >> /etc/apache2/apache2.conf
 sudo service apache2 restart
 echo "[+] enabled apache logging - read logs with:\nsudo tail -f /var/log/apache2/access.log"
-echo "[+] installing sublimetext.."
+echo "[+] adding sublimetext to apt.."
 wget -qO - https://download.sublimetext.com/sublimehq-pub.gpg | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/sublimehq-archive.gpg > /dev/null
 echo "deb https://download.sublimetext.com/ apt/stable/" | sudo tee /etc/apt/sources.list.d/sublime-text.list
-sudo apt-get -y update
+echo "[+] adding mono to apt.."
+sudo gpg --homedir /tmp --no-default-keyring --keyring /usr/share/keyrings/mono-official-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
+echo "deb [signed-by=/usr/share/keyrings/mono-official-archive-keyring.gpg] https://download.mono-project.com/repo/debian stable-buster main" | sudo tee /etc/apt/sources.list.d/mono-official-stable.list
+sudo apt -y update
 echo "[+] installing essentials from pgklist.txt .."
 for i in $(cat pkglist.txt); do sudo apt-get -y install $i; done
 echo "[+] setting up samba.." 
@@ -36,11 +39,8 @@ echo "[+] installing certipy-ad.."
 pipx install certipy-ad
 echo "[+] installing oletools.."
 sudo -H pip install -U oletools
-echo "[+] installing mono.."
-sudo gpg --homedir /tmp --no-default-keyring --keyring /usr/share/keyrings/mono-official-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
-echo "deb [signed-by=/usr/share/keyrings/mono-official-archive-keyring.gpg] https://download.mono-project.com/repo/debian stable-buster main" | sudo tee /etc/apt/sources.list.d/mono-official-stable.list
-sudo apt -y update
-sudo apt-get -y install mono-devel
+echo "[+] install pwntools.."
+sudo -H pip install pwntools
 sudo msfdb start
 echo "[+] msfdb started"
 echo "[+] filling /opt .."
