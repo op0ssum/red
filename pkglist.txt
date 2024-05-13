@@ -10,6 +10,7 @@ gnupg
 jq
 krb5-user
 pipx
+rlwrap
 samba
 sublime-text
 seclists  
