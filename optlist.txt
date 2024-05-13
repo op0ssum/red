@@ -57,6 +57,7 @@ https://github.com/jpillora/chisel
 https://github.com/calebstewart/bypass-clm
 https://github.com/CiscoCXSecurity/creddump7
 https://github.com/chenjj/espoofer
+https://github.com/hugsy/gef
 https://github.com/lmammino/jwt-cracker
 https://github.com/wallarm/jwt-secrets
 https://github.com/nidem/kerberoast
