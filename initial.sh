@@ -19,6 +19,8 @@ echo 'deb [trusted=yes] https://repo.goreleaser.com/apt/ /' | sudo tee /etc/apt/
 sudo apt -y update
 echo "[+] installing essentials from pgklist.txt .."
 for i in $(cat pkglist.txt); do sudo apt-get -y install $i; done
+echo "[+] installing garble .."
+go install mvdan.cc/garble@latest
 echo "[+] setting up samba.." 
 sudo mv /etc/samba/smb.conf /etc/samba/smb.conf.old
 cat <<EOF >>/etc/samba/smb.conf
