@@ -21,6 +21,9 @@ echo "[+] installing essentials from pgklist.txt .."
 for i in $(cat pkglist.txt); do sudo apt-get -y install $i; done
 echo "[+] installing garble .."
 go install mvdan.cc/garble@latest
+echo "[+] setting up go path .."
+GOPATH="/home/$cuser/go"
+export PATH=${PATH}:`go env GOPATH`/bin
 echo "[+] setting up samba.." 
 sudo mv /etc/samba/smb.conf /etc/samba/smb.conf.old
 cat <<EOF >>/etc/samba/smb.conf
