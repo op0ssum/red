@@ -8,6 +8,7 @@ ghidra
 git
 gnupg
 golang
+goreleaser
 jq
 krb5-user
 mono-devel
