@@ -70,6 +70,7 @@ https://github.com/nicocha30/ligolo-ng
 https://github.com/ambionics/phpggc
 https://github.com/cwolff411/powerob
 https://github.com/DominicBreuker/pspy
+https://github.com/the-useless-one/pywerview
 https://github.com/threatexpress/malleable-c2
 https://github.com/gentilkiwi/mimikatz
 https://github.com/int0x33/nc.exe
