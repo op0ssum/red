@@ -1077,7 +1077,7 @@ smbclient -U "domain.local\usedname%password" \\\\fileshare.domain.local\\sharen
 ```
 smbmap usage
 ```
-proxychains -q -f nextcloud.conf smbmap -u 'hola' -p 'P@ssw0rd' -H 192.168.20.10
+proxychains -q -f nextcloud.conf smbmap -d 'domain' -u 'hola' -p 'P@ssw0rd' -H 192.168.20.10
 ```
 smbget usage
 ```
