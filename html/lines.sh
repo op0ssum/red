@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #
-# Copyright (c) 2016-2020, @_mzet_
+# Copyright (c) 2016-2023, https://github.com/mzet-
 #
 # linux-exploit-suggester.sh comes with ABSOLUTELY NO WARRANTY.
 # This is free software, and you are welcome to redistribute it
@@ -217,7 +217,7 @@ Reqs: pkg=linux-kernel,ver>=2.6.0,ver<=2.6.30
 Tags: ubuntu=9.04
 Rank: 1
 analysis-url: https://xorl.wordpress.com/2009/07/16/cve-2009-1895-linux-kernel-per_clear_on_setid-personality-bypass/
-src-url: https://github.com/offensive-security/exploit-database-bin-sploits/raw/master/bin-sploits/9435.tgz
+src-url: https://gitlab.com/exploit-database/exploitdb-bin-sploits/-/raw/main/bin-sploits/9435.tgz
 exploit-db: 9435
 Comments: /proc/sys/vm/mmap_min_addr needs to equal 0 OR pulseaudio needs to be installed
 EOF
@@ -228,7 +228,7 @@ Name: ${txtgrn}[CVE-2009-2692,CVE-2009-1895]${txtrst} sock_sendpage2
 Reqs: pkg=linux-kernel,ver>=2.6.0,ver<=2.6.30
 Tags: 
 Rank: 1
-src-url: https://github.com/offensive-security/exploit-database-bin-sploits/raw/master/bin-sploits/9436.tgz
+src-url: https://gitlab.com/exploit-database/exploitdb-bin-sploits/-/raw/main/bin-sploits/9436.tgz
 exploit-db: 9436
 Comments: Works for systems with /proc/sys/vm/mmap_min_addr equal to 0
 EOF
@@ -239,7 +239,7 @@ Name: ${txtgrn}[CVE-2009-2692,CVE-2009-1895]${txtrst} sock_sendpage3
 Reqs: pkg=linux-kernel,ver>=2.6.0,ver<=2.6.30
 Tags: 
 Rank: 1
-src-url: https://github.com/offensive-security/exploit-database-bin-sploits/raw/master/bin-sploits/9641.tar.gz
+src-url: https://gitlab.com/exploit-database/exploitdb-bin-sploits/-/raw/main/bin-sploits/9641.tar.gz
 exploit-db: 9641
 Comments: /proc/sys/vm/mmap_min_addr needs to equal 0 OR pulseaudio needs to be installed
 EOF
@@ -260,7 +260,7 @@ Name: ${txtgrn}[CVE-2009-2698]${txtrst} the rebel (udp_sendmsg)
 Reqs: pkg=linux-kernel,ver>=2.6.1,ver<=2.6.19
 Tags: debian=4
 Rank: 1
-src-url: https://github.com/offensive-security/exploit-database-bin-sploits/raw/master/bin-sploits/9574.tgz
+src-url: https://gitlab.com/exploit-database/exploitdb-bin-sploits/-/raw/main/bin-sploits/9574.tgz
 exploit-db: 9574
 analysis-url: https://blog.cr0.org/2009/08/cve-2009-2698-udpsendmsg-vulnerability.html
 author: spender
@@ -701,7 +701,7 @@ Name: ${txtgrn}[CVE-2016-4997]${txtrst} target_offset
 Reqs: pkg=linux-kernel,ver>=4.4.0,ver<=4.4.0,cmd:grep -qi ip_tables /proc/modules
 Tags: ubuntu=16.04{kernel:4.4.0-21-generic}
 Rank: 1
-src-url: https://github.com/offensive-security/exploit-database-bin-sploits/raw/master/bin-sploits/40053.zip
+src-url: https://gitlab.com/exploit-database/exploitdb-bin-sploits/-/raw/main/bin-sploits/40053.zip
 Comments: ip_tables.ko needs to be loaded
 exploit-db: 40049
 author: Vitaly 'vnik' Nikolenko
@@ -714,7 +714,7 @@ Reqs: pkg=linux-kernel,ver>=4.4,ver<4.5.5,CONFIG_BPF_SYSCALL=y,sysctl:kernel.unp
 Tags: ubuntu=16.04{kernel:4.4.0-21-generic}
 Rank: 1
 analysis-url: https://bugs.chromium.org/p/project-zero/issues/detail?id=808
-src-url: https://github.com/offensive-security/exploit-database-bin-sploits/raw/master/bin-sploits/39772.zip
+src-url: https://gitlab.com/exploit-database/exploitdb-bin-sploits/-/raw/main/bin-sploits/39772.zip
 Comments: CONFIG_BPF_SYSCALL needs to be set && kernel.unprivileged_bpf_disabled != 1
 exploit-db: 40759
 author: Jann Horn
@@ -858,7 +858,7 @@ Reqs: pkg=linux-kernel,ver>=4.15,ver<=4.19.2,CONFIG_USER_NS=y,sysctl:kernel.unpr
 Tags: ubuntu=18.04{kernel:4.15.0-20-generic},fedora=28{kernel:4.16.3-301.fc28}
 Rank: 1
 analysis-url: https://bugs.chromium.org/p/project-zero/issues/detail?id=1712
-src-url: https://github.com/offensive-security/exploitdb-bin-sploits/raw/master/bin-sploits/45886.zip
+src-url: https://gitlab.com/exploit-database/exploitdb-bin-sploits/-/raw/main/bin-sploits/45886.zip
 exploit-db: 45886
 author: Jann Horn
 Comments: CONFIG_USER_NS needs to be enabled
@@ -871,7 +871,7 @@ Reqs: pkg=linux-kernel,ver>=4,ver<5.1.17,sysctl:kernel.yama.ptrace_scope==0,x86_
 Tags: ubuntu=16.04{kernel:4.15.0-*},ubuntu=18.04{kernel:4.15.0-*},debian=9{kernel:4.9.0-*},debian=10{kernel:4.19.0-*},fedora=30{kernel:5.0.9-*}
 Rank: 1
 analysis-url: https://bugs.chromium.org/p/project-zero/issues/detail?id=1903
-src-url: https://github.com/offensive-security/exploitdb-bin-sploits/raw/master/bin-sploits/47133.zip
+src-url: https://gitlab.com/exploit-database/exploitdb-bin-sploits/-/raw/main/bin-sploits/47133.zip
 ext-url: https://raw.githubusercontent.com/bcoles/kernel-exploits/master/CVE-2019-13272/poc.c
 Comments: Requires an active PolKit agent.
 exploit-db: 47133
@@ -929,6 +929,44 @@ exploit-db: 50135
 author: theflow (orginal exploit author); bcoles (author of exploit update at 'ext-url')
 EOF
 )
+
+EXPLOITS[((n++))]=$(cat <<EOF
+Name: ${txtgrn}[CVE-2022-0847]${txtrst} DirtyPipe
+Reqs: pkg=linux-kernel,ver>=5.8,ver<=5.16.11
+Tags: ubuntu=(20.04|21.04),debian=11
+Rank: 1
+analysis-url: https://dirtypipe.cm4all.com/
+src-url: https://haxx.in/files/dirtypipez.c
+exploit-db: 50808
+author: blasty (original exploit author: Max Kellermann)
+EOF
+)
+
+EXPLOITS[((n++))]=$(cat <<EOF
+Name: ${txtgrn}[CVE-2022-2586]${txtrst} nft_object UAF
+Reqs: pkg=linux-kernel,ver>=3.16,CONFIG_USER_NS=y,sysctl:kernel.unprivileged_userns_clone==1
+Tags: ubuntu=(20.04){kernel:5.12.13}
+Rank: 1
+analysis-url: https://www.openwall.com/lists/oss-security/2022/08/29/5
+src-url: https://www.openwall.com/lists/oss-security/2022/08/29/5/1
+Comments: kernel.unprivileged_userns_clone=1 required (to obtain CAP_NET_ADMIN)
+author: vulnerability discovery: Team Orca of Sea Security; Exploit author: Alejandro Guerrero
+EOF
+)
+
+EXPLOITS[((n++))]=$(cat <<EOF
+Name: ${txtgrn}[CVE-2022-32250]${txtrst} nft_object UAF (NFT_MSG_NEWSET)
+Reqs: pkg=linux-kernel,ver<5.18.1,CONFIG_USER_NS=y,sysctl:kernel.unprivileged_userns_clone==1
+Tags: ubuntu=(22.04){kernel:5.15.0-27-generic}
+Rank: 1
+analysis-url: https://research.nccgroup.com/2022/09/01/settlers-of-netlink-exploiting-a-limited-uaf-in-nf_tables-cve-2022-32250/
+analysis-url: https://blog.theori.io/research/CVE-2022-32250-linux-kernel-lpe-2022/
+src-url: https://raw.githubusercontent.com/theori-io/CVE-2022-32250-exploit/main/exp.c
+Comments: kernel.unprivileged_userns_clone=1 required (to obtain CAP_NET_ADMIN)
+author: vulnerability discovery: EDG Team from NCC Group; Author of this exploit: theori.io
+EOF
+)
+
 
 ############ USERSPACE EXPLOITS ###########################
 n=0
@@ -1028,7 +1066,7 @@ Reqs: pkg=glibc|libc6,x86
 Tags: debian=6
 Rank: 1
 analysis-url: http://googleprojectzero.blogspot.com/2014/08/the-poisoned-nul-byte-2014-edition.html
-src-url: https://github.com/offensive-security/exploit-database-bin-sploits/raw/master/bin-sploits/34421.tar.gz
+src-url: https://gitlab.com/exploit-database/exploitdb-bin-sploits/-/raw/main/bin-sploits/34421.tar.gz
 exploit-db: 34421
 EOF
 )
@@ -1246,7 +1284,7 @@ Reqs: pkg=ntfs-3g,ver<2017.4
 Tags: ubuntu=16.04{ntfs-3g:2015.3.14AR.1-1build1},debian=7.0{ntfs-3g:2012.1.15AR.5-2.1+deb7u2},debian=8.0{ntfs-3g:2014.2.15AR.2-1+deb8u2}
 Rank: 1
 analysis-url: https://bugs.chromium.org/p/project-zero/issues/detail?id=1072
-src-url: https://github.com/offensive-security/exploit-database-bin-sploits/raw/master/bin-sploits/41356.zip
+src-url: https://gitlab.com/exploit-database/exploitdb-bin-sploits/-/raw/main/bin-sploits/41356.zip
 exploit-db: 41356
 author: Jann Horn
 Comments: Distros use own versioning scheme. Manual verification needed. Linux headers must be installed. System must have at least two CPU cores.
@@ -1769,7 +1807,7 @@ EOF
 FEATURES[((n++))]=$(cat <<EOF
 feature: Syscalls filtering
 available: CONFIG_SECCOMP=y
-enabled: cmd:grep -i Seccomp /proc/self/status | awk '{print \$2}'
+enabled: cmd:grep -iw Seccomp /proc/self/status | awk '{print \$2}'
 analysis-url: https://github.com/mzet-/les-res/blob/master/features/bpf_syscall.md
 EOF
 )
@@ -2167,8 +2205,8 @@ for FEATURE in "${FEATURES[@]}"; do
 
     feature=$(echo "$FEATURE" | grep "feature: " | cut -d' ' -f 2-)
 
-	if [ -n "$cmdStdout" ]; then
-        if [ "$cmdStdout" -eq 0 ]; then
+    if [ -n "$cmdStdout" ]; then
+        if [ $cmdStdout -eq 0 ]; then
             state="[ ${txtred}Set to $cmdStdout${txtrst} ]"
 			cmdStdout=""
         else
@@ -2181,15 +2219,15 @@ for FEATURE in "${FEATURES[@]}"; do
 
 	# for 3rd party (3) mode display "N/A" or "Enabled"
 	if [ $MODE -eq 3 ]; then
-        enabled="[ ${txtgrn}Enabled${txtrst}   ]"
-        disabled="[   ${txtgray}N/A${txtrst}    ]"
+            enabled="[ ${txtgrn}Enabled${txtrst}   ]"
+            disabled="[   ${txtgray}N/A${txtrst}    ]"
 
-    # for attack-surface (4) mode display "Locked" or "Exposed"
-    elif [ $MODE -eq 4 ]; then
-       enabled="[ ${txtred}Exposed${txtrst}  ]"
-       disabled="[ ${txtgrn}Locked${txtrst}   ]"
+        # for attack-surface (4) mode display "Locked" or "Exposed"
+        elif [ $MODE -eq 4 ]; then
+           enabled="[ ${txtred}Exposed${txtrst}  ]"
+           disabled="[ ${txtgrn}Locked${txtrst}   ]"
 
-	#other modes" "Disabled" / "Enabled"
+	# other modes" "Disabled" / "Enabled"
 	else
 		enabled="[ ${txtgrn}Enabled${txtrst}  ]"
 		disabled="[ ${txtred}Disabled${txtrst} ]"
@@ -2656,4 +2694,3 @@ for EXP_TEMP in "${SORTED_EXPLOITS[@]}"; do
         echo
 
 done
-
