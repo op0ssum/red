@@ -16,4 +16,5 @@ pipx
 rlwrap
 samba
 sublime-text
-seclists  
+seclists
+zbar-tools
