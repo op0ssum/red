@@ -12,6 +12,7 @@ goreleaser
 jq
 krb5-user
 mono-devel
+oathtool
 pipx
 rlwrap
 samba
