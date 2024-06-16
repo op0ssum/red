@@ -4,6 +4,7 @@ https://github.com/samratashok/ADModule
 https://github.com/tokyoneon/B2E
 https://github.com/fox-it/BloodHound.py
 https://github.com/CompassSecurity/BloodHoundQueries
+https://github.com/TheWover/CertStealer
 https://github.com/mdsecactivebreach/Chameleon
 https://github.com/cobbr/Covenant
 https://github.com/tyranid/DotNetToJScript
