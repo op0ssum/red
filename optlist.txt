@@ -65,6 +65,7 @@ https://github.com/CiscoCXSecurity/creddump7
 https://github.com/iagox86/dnscat2
 https://github.com/op0ssum/egressbuster
 https://github.com/chenjj/espoofer
+https://github.com/kgretzky/evilginx2
 https://github.com/hugsy/gef
 https://github.com/lmammino/jwt-cracker
 https://github.com/wallarm/jwt-secrets
