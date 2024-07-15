@@ -12,6 +12,7 @@ https://github.com/Keramas/DS_Walk
 https://github.com/BC-SECURITY/Empire
 https://github.com/mo-xiaoxi/ESpoofing
 https://github.com/outflanknl/EvilClippy
+https://github.com/simplerhacking/Evilginx3-Phishlets
 https://github.com/rvrsh3ll/FindFrontableDomains
 https://github.com/r3motecontrol/Ghostpack-CompiledBinaries
 https://github.com/rvazarkar/GMSAPasswordReader
@@ -66,6 +67,7 @@ https://github.com/iagox86/dnscat2
 https://github.com/op0ssum/egressbuster
 https://github.com/chenjj/espoofer
 https://github.com/kgretzky/evilginx2
+https://github.com/BakkerJan/evilginx3
 https://github.com/hugsy/gef
 https://github.com/lmammino/jwt-cracker
 https://github.com/wallarm/jwt-secrets
