@@ -28,7 +28,8 @@ def certutil_b64encode(src,dest):
     f.close()
     print('[+] certutil encoded file written: %s\n' % certfilename)
     print("[+] tips to decode certutil encoded file:\n")
-    print("certutil -decode .\\%s .\\%s" % (dest,lsrc))
+    print("certutil -decode .\\%s .\\%s" % (dest,src))
+    print("cat %s | head -n -1 | tail -n +2 | tr -d '\n'" % certfilename)
     return certfilename
     pass
 
