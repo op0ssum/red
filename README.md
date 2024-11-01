@@ -892,6 +892,7 @@ xp_dirtree '\\192.168.10.11\a';
 ```
 powershell check certs
 ```
+gci Cert:\CurrentUser\My
 gci Cert:\ -Recurse
 gci Cert:\ -Recurse | select-string "XXXX"
 ```
