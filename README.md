@@ -896,6 +896,30 @@ gci Cert:\CurrentUser\My
 gci Cert:\ -Recurse
 gci Cert:\ -Recurse | select-string "XXXX"
 ```
+powershell check proxy [sauce1](https://gist.github.com/nullbind/c0cee65a281d30e4d53b618f026ccd12#file-get-winproxyinfo-ps1-L170) [sauce2](https://github.com/Ichigo49/psh-tools/blob/ee2111986db6bd316e3e90214789d5c9f3837351/lib/Scripts/Proxy.ps1)
+```
+$binval = (Get-ItemProperty "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Connections" -Name DefaultConnectionSettings).DefaultConnectionSettings
+
+$proxylength = $binval[12]            
+   if ($proxylength -gt 0) {            
+       $proxy = -join ($binval[(12+3+1)..(12+3+1+$proxylength-1)] | % {([char]$_)})            
+       $bypasslength = $binval[(12+3+1+$proxylength)]            
+       if ($bypasslength -gt 0) {            
+            $bypasslist = -join ($binval[(12+3+1+$proxylength+3+1)..(12+3+1+$proxylength+3+1+$bypasslength)] | % {([char]$_)})            
+        } else {            
+            $bypasslist = '(none)'            
+        }            
+       "Current WinHTTP proxy settings:`n"            
+       '    Proxy Server(s): {0}' -f $proxy            
+       '    Bypass List    : {0}' -f $bypasslist            
+    } else {            
+        @'
+Current WinHTTP proxy settings:
+
+    Direct access (no proxy server).
+'@            
+ }
+```
 powershell cred
 ```
 $username = 'username'
