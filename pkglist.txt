@@ -18,4 +18,5 @@ rlwrap
 samba
 sublime-text
 seclists
+unar
 zbar-tools
